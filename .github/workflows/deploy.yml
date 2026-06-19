@@ -24,8 +24,23 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Deploy to Netlify production
-        run: npx netlify-cli deploy --prod --build --message "Deploy from GitHub Actions (${{ github.sha }})"
+      - name: Deploy to Netlify
+        run: |
+          npx netlify-cli deploy --prod-if-unlocked --build \
+            --message "Deploy from GitHub Actions (${{ github.sha }})" \
+            --json > deploy-output.json
+          node -e "
+            const d = require('./deploy-output.json');
+            const fs = require('fs');
+            const lines = [
+              '## Netlify deploy',
+              '',
+              d.deploy_ssl_url ? '- **URL:** ' + d.deploy_ssl_url : '',
+              d.deploy_id ? '- **Deploy ID:** ' + d.deploy_id : '',
+              d.published_at ? '- **Published to production**' : '- **Draft deploy** (production blocked — add Netlify credits or publish from the Netlify UI)',
+            ].filter(Boolean);
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join('\n') + '\n');
+          "
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
