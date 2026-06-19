@@ -13,7 +13,7 @@ services:
     region: oregon
     repo: https://github.com/jhrzic/unlisted
     branch: main
-    buildCommand: npm ci && npm run build
+    buildCommand: npm ci --omit=dev
     startCommand: npm start
     healthCheckPath: /health
     envVars:
@@ -25,5 +25,7 @@ services:
         fromDatabase:
           name: unlisted-db
           property: connectionString
+      - key: PGSSLMODE
+        value: disable
       - key: HIBP_API_KEY
         sync: false

@@ -11,13 +11,17 @@ function getConnectionString() {
   );
 }
 
+function isRenderInternalPostgres(url) {
+  return /@dpg-[a-z0-9-]+\//i.test(url);
+}
+
 function normalizeConnectionString(url) {
   if (!url) return url;
 
   let normalized = url;
   if (!normalized.includes("sslmode=")) {
     normalized += normalized.includes("?") ? "&" : "?";
-    normalized += "sslmode=require";
+    normalized += isRenderInternalPostgres(normalized) ? "sslmode=disable" : "sslmode=require";
   }
 
   // Transaction pooler (6543) needs pgbouncer mode for node-pg.
@@ -29,14 +33,20 @@ function normalizeConnectionString(url) {
 }
 
 function getPoolConfig() {
-  const connectionString = normalizeConnectionString(getConnectionString());
+  const raw = getConnectionString();
+  const connectionString = normalizeConnectionString(raw);
   if (!connectionString) {
     return null;
   }
 
+  const sslDisabled =
+    process.env.PGSSLMODE === "disable" ||
+    connectionString.includes("sslmode=disable") ||
+    isRenderInternalPostgres(raw || connectionString);
+
   return {
     connectionString,
-    ssl: process.env.PGSSLMODE === "disable" ? false : { rejectUnauthorized: false },
+    ssl: sslDisabled ? false : { rejectUnauthorized: false },
     max: Number(process.env.PGPOOL_MAX || 10),
     idleTimeoutMillis: 30_000,
     connectionTimeoutMillis: 15_000,
