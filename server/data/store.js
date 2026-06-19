@@ -8,19 +8,24 @@ if (process.env.NODE_ENV !== "production") {
   }
 }
 
+const { getConnectionString } = require("./db-config");
+
 function usePostgres() {
-  return Boolean(
-    process.env.DATABASE_URL ||
-      process.env.SUPABASE_DB_URL ||
-      process.env.SUPABASE_DATABASE_URL
-  );
+  if (process.env.NODE_ENV === "production") {
+    return true;
+  }
+  return Boolean(getConnectionString());
 }
 
 let backend;
 
 function getBackend() {
   if (!backend) {
-    backend = usePostgres() ? require("./pg-store") : require("./sqlite-store");
+    if (usePostgres()) {
+      backend = require("./pg-store");
+    } else {
+      backend = require("./sqlite-store");
+    }
   }
   return backend;
 }

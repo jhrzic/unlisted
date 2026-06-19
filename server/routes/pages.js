@@ -4,6 +4,10 @@ const { requireAuth } = require("../middleware/auth");
 
 const router = express.Router();
 
+router.get("/health", (req, res) => {
+  res.status(200).json({ ok: true });
+});
+
 router.get("/", async (req, res, next) => {
   try {
     const row = await store.get("SELECT COUNT(*) as c FROM brokers");

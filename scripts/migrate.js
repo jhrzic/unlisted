@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
  * Apply SQL migrations from supabase/migrations/ in filename order.
- * Uses DATABASE_URL (Supabase connection string — use the pooler URI in production).
  */
 const fs = require("fs");
 const path = require("path");
 const { Pool } = require("pg");
+const { getPoolConfig, getConnectionString } = require("../server/data/db-config");
 
 if (process.env.NODE_ENV !== "production") {
   try {
@@ -15,23 +15,24 @@ if (process.env.NODE_ENV !== "production") {
   }
 }
 
-const connectionString =
-  process.env.DATABASE_URL ||
-  process.env.SUPABASE_DB_URL ||
-  process.env.SUPABASE_DATABASE_URL;
-
-if (!connectionString) {
-  console.log("No DATABASE_URL set — skipping migrations (SQLite dev mode).");
-  process.exit(0);
-}
-
 const migrationsDir = path.join(__dirname, "..", "supabase", "migrations");
 
+async function tableExists(pool, tableName) {
+  const { rows } = await pool.query("SELECT to_regclass($1) AS reg", [`public.${tableName}`]);
+  return Boolean(rows[0]?.reg);
+}
+
 async function main() {
-  const pool = new Pool({
-    connectionString,
-    ssl: process.env.PGSSLMODE === "disable" ? false : { rejectUnauthorized: false },
-  });
+  if (!getConnectionString()) {
+    if (process.env.NODE_ENV === "production") {
+      console.error("DATABASE_URL is required in production.");
+      process.exit(1);
+    }
+    console.log("No DATABASE_URL set — skipping migrations (SQLite dev mode).");
+    return;
+  }
+
+  const pool = new Pool(getPoolConfig());
 
   try {
     await pool.query(`
@@ -56,13 +57,29 @@ async function main() {
         continue;
       }
 
+      if (file.includes("initial") && (await tableExists(pool, "brokers"))) {
+        console.log(`skip ${file} (schema already present)`);
+        await pool.query("INSERT INTO schema_migrations (name) VALUES ($1)", [file]);
+        continue;
+      }
+
+      if (file.includes("seed") && (await tableExists(pool, "brokers"))) {
+        const { rows: countRows } = await pool.query("SELECT COUNT(*)::int AS c FROM brokers");
+        if (countRows[0]?.c > 0) {
+          console.log(`skip ${file} (${countRows[0].c} brokers already seeded)`);
+          await pool.query("INSERT INTO schema_migrations (name) VALUES ($1)", [file]);
+          continue;
+        }
+      }
+
       const sql = fs.readFileSync(path.join(migrationsDir, file), "utf8");
       console.log(`apply ${file}`);
       await pool.query(sql);
       await pool.query("INSERT INTO schema_migrations (name) VALUES ($1)", [file]);
     }
 
-    console.log("Migrations complete.");
+    const { rows: brokerCount } = await pool.query("SELECT COUNT(*)::int AS c FROM brokers");
+    console.log(`Migrations complete. Brokers: ${brokerCount[0]?.c ?? 0}`);
   } finally {
     await pool.end();
   }

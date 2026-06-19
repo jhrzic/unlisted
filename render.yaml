@@ -1,17 +1,29 @@
+databases:
+  - name: unlisted-db
+    plan: free
+    region: oregon
+    databaseName: unlisted
+    user: unlisted
+
 services:
   - type: web
     name: unlisted
     runtime: node
     plan: free
+    region: oregon
+    repo: https://github.com/jhrzic/unlisted
+    branch: main
     buildCommand: npm ci && npm run build
     startCommand: npm start
-    healthCheckPath: /
+    healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production
       - key: SESSION_SECRET
         generateValue: true
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: unlisted-db
+          property: connectionString
       - key: HIBP_API_KEY
         sync: false

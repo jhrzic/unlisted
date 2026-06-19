@@ -1,27 +1,15 @@
 const { Pool } = require("pg");
+const { getPoolConfig, requireConnectionString } = require("./db-config");
 
 let pool;
 
-function getConnectionString() {
-  return (
-    process.env.DATABASE_URL ||
-    process.env.SUPABASE_DB_URL ||
-    process.env.SUPABASE_DATABASE_URL
-  );
-}
-
 function getPool() {
   if (!pool) {
-    const connectionString = getConnectionString();
-    if (!connectionString) {
-      throw new Error(
-        "DATABASE_URL is required for Postgres. Set it to your Supabase connection string."
-      );
+    const config = getPoolConfig();
+    if (!config) {
+      requireConnectionString();
     }
-    pool = new Pool({
-      connectionString,
-      ssl: process.env.PGSSLMODE === "disable" ? false : { rejectUnauthorized: false },
-    });
+    pool = new Pool(config);
   }
   return pool;
 }
