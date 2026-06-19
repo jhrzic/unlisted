@@ -1,19 +1,27 @@
 const { Pool } = require("pg");
-const { getDatabase } = require("@netlify/database");
 
 let pool;
 
+function getConnectionString() {
+  return (
+    process.env.DATABASE_URL ||
+    process.env.SUPABASE_DB_URL ||
+    process.env.SUPABASE_DATABASE_URL
+  );
+}
+
 function getPool() {
   if (!pool) {
-    const connectionString = process.env.NETLIFY_DB_URL || process.env.DATABASE_URL;
-    if (connectionString) {
-      pool = new Pool({
-        connectionString,
-        ssl: process.env.PGSSLMODE === "disable" ? false : { rejectUnauthorized: false },
-      });
-    } else {
-      pool = getDatabase().pool;
+    const connectionString = getConnectionString();
+    if (!connectionString) {
+      throw new Error(
+        "DATABASE_URL is required for Postgres. Set it to your Supabase connection string."
+      );
     }
+    pool = new Pool({
+      connectionString,
+      ssl: process.env.PGSSLMODE === "disable" ? false : { rejectUnauthorized: false },
+    });
   }
   return pool;
 }

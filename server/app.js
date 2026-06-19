@@ -21,13 +21,12 @@ const pageRoutes = require("./routes/pages");
 function createApp() {
   const app = express();
 
+  if (process.env.NODE_ENV === "production") {
+    app.set("trust proxy", 1);
+  }
+
   app.set("view engine", "ejs");
-  app.set(
-    "views",
-    process.env.AWS_LAMBDA_FUNCTION_NAME
-      ? path.join(process.cwd(), "views")
-      : path.join(__dirname, "..", "views")
-  );
+  app.set("views", path.join(__dirname, "..", "views"));
 
   app.use(
     helmet({

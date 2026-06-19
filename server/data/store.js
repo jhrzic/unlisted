@@ -8,14 +8,12 @@ if (process.env.NODE_ENV !== "production") {
   }
 }
 
-function isNetlifyRuntime() {
-  return Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NETLIFY);
-}
-
 function usePostgres() {
-  if (process.env.NETLIFY_DB_URL || process.env.DATABASE_URL) return true;
-  if (isNetlifyRuntime()) return true;
-  return false;
+  return Boolean(
+    process.env.DATABASE_URL ||
+      process.env.SUPABASE_DB_URL ||
+      process.env.SUPABASE_DATABASE_URL
+  );
 }
 
 let backend;

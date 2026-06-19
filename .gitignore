@@ -5,3 +5,5 @@ server/data/unlisted.db
 server/data/unlisted.db-wal
 server/data/unlisted.db-shm
 .DS_Store
+supabase/.branches
+supabase/.temp
