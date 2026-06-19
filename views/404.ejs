@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><%- include('partials/head', { title: 'Not found — Unlisted' }) %></head>
+<body class="min-h-screen flex flex-col">
+<%- include('partials/nav') %>
+<main class="flex-1 flex items-center justify-center px-5 text-center">
+  <div>
+    <div class="font-mono text-signal text-sm mb-3">404 — NO RECORD FOUND</div>
+    <h1 class="font-display font-extrabold uppercase text-4xl sm:text-5xl mb-4">That page isn't on file.</h1>
+    <a href="/" class="btn-primary inline-block mt-2">Back home →</a>
+  </div>
+</main>
+<%- include('partials/footer') %>
+</body>
+</html>

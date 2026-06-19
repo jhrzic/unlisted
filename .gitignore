@@ -1,0 +1,7 @@
+node_modules/
+.env
+.netlify/
+server/data/unlisted.db
+server/data/unlisted.db-wal
+server/data/unlisted.db-shm
+.DS_Store

@@ -1,0 +1,155 @@
+<% if (typeof standalone === 'undefined') { standalone = true } %>
+<% if (standalone) { %>
+<!DOCTYPE html>
+<html lang="en">
+<head><%- include('partials/head', { title: 'Pricing — Unlisted' }) %></head>
+<body>
+<%- include('partials/nav') %>
+<section class="py-16 sm:py-24">
+  <div class="max-w-[1180px] mx-auto px-5 sm:px-8">
+    <div class="max-w-[680px] mb-10">
+      <div class="eyebrow">PRICING</div>
+      <h2 class="font-display font-extrabold uppercase leading-[1.02] mt-3.5 text-[clamp(1.75rem,5vw,3rem)]">Pick your level of coverage.</h2>
+    </div>
+<% } %>
+
+<div x-data="{ mode: 'annual' }" id="pricing-app">
+  <div class="inline-flex border border-line-strong font-mono text-sm mb-9">
+    <button data-mode="annual" class="billing-btn px-5 py-2.5 bg-bone text-void font-semibold">Annually <span class="text-verified">Save 50%</span></button>
+    <button data-mode="monthly" class="billing-btn px-5 py-2.5 text-steel">Monthly</button>
+  </div>
+
+  <div id="pricing-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 border border-line annual-view">
+
+    <!-- Standard -->
+    <div class="plan-card p-6 sm:p-7 border-b lg:border-b-0 border-r-0 sm:border-r lg:border-r border-line flex flex-col">
+      <h3 class="font-display font-extrabold text-2xl uppercase">Standard</h3>
+      <div class="price-annual font-mono text-[1.875rem] font-semibold mt-3.5">$7.99<span class="text-sm text-steel font-normal">/mo</span></div>
+      <div class="price-monthly hidden font-mono text-[1.875rem] font-semibold mt-3.5">$15.98<span class="text-sm text-steel font-normal">/mo</span></div>
+      <div class="save-annual font-mono text-xs text-verified mt-1.5">Save $95.88 a year</div>
+      <p class="text-sm text-bone-dim mt-3.5 min-h-[2.5rem]">Stay off data broker sites, hassle-free.</p>
+      <div class="billed-annual font-mono text-[11px] text-steel mt-3.5 leading-relaxed">Billed <s>$191.76</s> $95.88 annually. Tax may apply.</div>
+      <div class="billed-monthly hidden font-mono text-[11px] text-steel mt-3.5 leading-relaxed">Billed monthly. Tax may apply.</div>
+      <div class="mt-5">
+        <div class="tag-mono text-steel mb-2.5">Automated removal</div>
+        <ul class="flex flex-col gap-2 mb-4">
+          <li class="text-[13px] text-bone-dim pl-4 relative"><span class="absolute left-0 top-0.5 text-verified text-[11px]">✓</span>20+ tracked brokers at launch</li>
+          <li class="text-[13px] text-bone-dim pl-4 relative"><span class="absolute left-0 top-0.5 text-verified text-[11px]">✓</span>Multiple emails, addresses & phone numbers</li>
+          <li class="text-[13px] text-bone-dim pl-4 relative"><span class="absolute left-0 top-0.5 text-verified text-[11px]">✓</span>Auto-sent requests for email-based brokers</li>
+        </ul>
+      </div>
+      <a href="/signup" class="plan-cta mt-auto border border-line-strong text-bone font-mono text-sm py-3 text-center block hover:border-bone transition-colors">Get Standard</a>
+    </div>
+
+    <!-- Unlimited (recommended) -->
+    <div class="plan-card p-6 sm:p-7 bg-panel border-b lg:border-b-0 border-r-0 sm:border-r-0 lg:border-r border-line flex flex-col relative">
+      <div class="font-mono text-[10px] tracking-wider text-signal mb-2.5">★ RECOMMENDED</div>
+      <h3 class="font-display font-extrabold text-2xl uppercase">Unlimited</h3>
+      <div class="price-annual font-mono text-[1.875rem] font-semibold mt-3.5">$14.99<span class="text-sm text-steel font-normal">/mo</span></div>
+      <div class="price-monthly hidden font-mono text-[1.875rem] font-semibold mt-3.5">$29.99<span class="text-sm text-steel font-normal">/mo</span></div>
+      <div class="save-annual font-mono text-xs text-verified mt-1.5">Save $179.88 a year</div>
+      <p class="text-sm text-bone-dim mt-3.5 min-h-[2.5rem]">Remove your data wherever it's exposed.</p>
+      <div class="billed-annual font-mono text-[11px] text-steel mt-3.5 leading-relaxed">Billed <s>$359.76</s> $179.88 annually. Tax may apply.</div>
+      <div class="billed-monthly hidden font-mono text-[11px] text-steel mt-3.5 leading-relaxed">Billed monthly. Tax may apply.</div>
+      <div class="mt-5">
+        <div class="tag-mono text-steel mb-2.5">Automated removal</div>
+        <ul class="flex flex-col gap-2 mb-4">
+          <li class="text-[13px] text-bone-dim pl-4 relative"><span class="absolute left-0 top-0.5 text-verified text-[11px]">✓</span>20+ tracked brokers at launch</li>
+          <li class="text-[13px] text-bone-dim pl-4 relative"><span class="absolute left-0 top-0.5 text-verified text-[11px]">✓</span>Multiple emails, addresses & phone numbers</li>
+          <li class="text-[13px] text-bone-dim pl-4 relative"><span class="absolute left-0 top-0.5 text-verified text-[11px]">✓</span>Auto-sent requests for email-based brokers</li>
+        </ul>
+        <div class="tag-mono text-steel mb-2.5">Custom removal</div>
+        <ul class="flex flex-col gap-2 mb-4">
+          <li class="text-[13px] text-bone-dim pl-4 relative"><span class="absolute left-0 top-0.5 text-verified text-[11px]">✓</span>CA DROP filing assistance</li>
+          <li class="text-[13px] text-bone-dim pl-4 relative"><span class="absolute left-0 top-0.5 text-verified text-[11px]">✓</span>Unlimited custom removal requests</li>
+          <li class="text-[13px] text-bone-dim pl-4 relative"><span class="absolute left-0 top-0.5 text-verified text-[11px]">✓</span>Live support</li>
+        </ul>
+      </div>
+      <a href="/signup" class="plan-cta mt-auto bg-signal border border-signal text-white font-mono text-sm font-semibold py-3 text-center block hover:bg-[#ff5249] transition-colors">Get Unlimited</a>
+    </div>
+
+    <!-- Family -->
+    <div class="plan-card p-6 sm:p-7 border-b lg:border-b-0 border-r-0 sm:border-r border-line flex flex-col">
+      <h3 class="font-display font-extrabold text-2xl uppercase">Family</h3>
+      <div class="price-annual font-mono text-[1.875rem] font-semibold mt-3.5">$15.99<span class="text-sm text-steel font-normal">/mo</span></div>
+      <div class="price-monthly hidden font-mono text-[1.875rem] font-semibold mt-3.5">$31.98<span class="text-sm text-steel font-normal">/mo</span></div>
+      <div class="save-annual font-mono text-xs text-verified mt-1.5">Save $191.88 a year</div>
+      <p class="text-sm text-bone-dim mt-3.5 min-h-[2.5rem]">Protect your closest friends and family in one place.</p>
+      <div class="billed-annual font-mono text-[11px] text-steel mt-3.5 leading-relaxed">Billed <s>$383.76</s> $191.88 annually. Tax may apply.</div>
+      <div class="billed-monthly hidden font-mono text-[11px] text-steel mt-3.5 leading-relaxed">Billed monthly. Tax may apply.</div>
+      <div class="mt-5">
+        <div class="tag-mono text-steel mb-2.5">Automated removal</div>
+        <ul class="flex flex-col gap-2 mb-4">
+          <li class="text-[13px] text-bone-dim pl-4 relative"><span class="absolute left-0 top-0.5 text-verified text-[11px]">✓</span>20+ tracked brokers at launch</li>
+          <li class="text-[13px] text-bone-dim pl-4 relative"><span class="absolute left-0 top-0.5 text-verified text-[11px]">✓</span>Multiple emails, addresses & phone numbers</li>
+        </ul>
+        <div class="tag-mono text-steel mb-2.5">Family account</div>
+        <ul class="flex flex-col gap-2 mb-4">
+          <li class="text-[13px] text-bone-dim pl-4 relative"><span class="absolute left-0 top-0.5 text-verified text-[11px]">✓</span>Up to 5 members</li>
+          <li class="text-[13px] text-bone-dim pl-4 relative"><span class="absolute left-0 top-0.5 text-verified text-[11px]">✓</span>Family account management</li>
+        </ul>
+      </div>
+      <a href="/signup" class="plan-cta mt-auto border border-line-strong text-bone font-mono text-sm py-3 text-center block hover:border-bone transition-colors">Get Family</a>
+    </div>
+
+    <!-- Family Unlimited -->
+    <div class="plan-card p-6 sm:p-7 flex flex-col">
+      <h3 class="font-display font-extrabold text-2xl uppercase">Family Unlimited</h3>
+      <div class="price-annual font-mono text-[1.875rem] font-semibold mt-3.5">$22.99<span class="text-sm text-steel font-normal">/mo</span></div>
+      <div class="price-monthly hidden font-mono text-[1.875rem] font-semibold mt-3.5">$45.99<span class="text-sm text-steel font-normal">/mo</span></div>
+      <div class="save-annual font-mono text-xs text-verified mt-1.5">Save $275.88 a year</div>
+      <p class="text-sm text-bone-dim mt-3.5 min-h-[2.5rem]">Unlimited removals for the people you care about.</p>
+      <div class="billed-annual font-mono text-[11px] text-steel mt-3.5 leading-relaxed">Billed <s>$551.76</s> $275.88 annually. Tax may apply.</div>
+      <div class="billed-monthly hidden font-mono text-[11px] text-steel mt-3.5 leading-relaxed">Billed monthly. Tax may apply.</div>
+      <div class="mt-5">
+        <div class="tag-mono text-steel mb-2.5">Automated + custom removal</div>
+        <ul class="flex flex-col gap-2 mb-4">
+          <li class="text-[13px] text-bone-dim pl-4 relative"><span class="absolute left-0 top-0.5 text-verified text-[11px]">✓</span>20+ tracked brokers at launch</li>
+          <li class="text-[13px] text-bone-dim pl-4 relative"><span class="absolute left-0 top-0.5 text-verified text-[11px]">✓</span>CA DROP filing assistance</li>
+          <li class="text-[13px] text-bone-dim pl-4 relative"><span class="absolute left-0 top-0.5 text-verified text-[11px]">✓</span>Live support</li>
+        </ul>
+        <div class="tag-mono text-steel mb-2.5">Family account</div>
+        <ul class="flex flex-col gap-2 mb-4">
+          <li class="text-[13px] text-bone-dim pl-4 relative"><span class="absolute left-0 top-0.5 text-verified text-[11px]">✓</span>Up to 5 members</li>
+          <li class="text-[13px] text-bone-dim pl-4 relative"><span class="absolute left-0 top-0.5 text-verified text-[11px]">✓</span>Family account management</li>
+        </ul>
+      </div>
+      <a href="/signup" class="plan-cta mt-auto border border-line-strong text-bone font-mono text-sm py-3 text-center block hover:border-bone transition-colors">Get Family Unlimited</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  (function () {
+    var grid = document.getElementById('pricing-grid');
+    var btns = document.querySelectorAll('.billing-btn');
+    btns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var mode = btn.dataset.mode;
+        btns.forEach(function (b) {
+          b.classList.remove('bg-bone', 'text-void', 'font-semibold');
+          b.classList.add('text-steel');
+        });
+        btn.classList.add('bg-bone', 'text-void', 'font-semibold');
+        btn.classList.remove('text-steel');
+
+        var isAnnual = mode === 'annual';
+        document.querySelectorAll('.price-annual, .billed-annual, .save-annual').forEach(function (el) {
+          el.classList.toggle('hidden', !isAnnual);
+        });
+        document.querySelectorAll('.price-monthly, .billed-monthly').forEach(function (el) {
+          el.classList.toggle('hidden', isAnnual);
+        });
+      });
+    });
+  })();
+</script>
+
+<% if (standalone) { %>
+  </div>
+</section>
+<%- include('partials/footer') %>
+</body>
+</html>
+<% } %>

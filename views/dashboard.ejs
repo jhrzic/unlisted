@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><%- include('partials/head', { title: 'Dashboard — Unlisted' }) %></head>
+<body class="min-h-screen">
+<%- include('partials/nav') %>
+
+<main class="max-w-[1180px] mx-auto px-5 sm:px-8 py-8 sm:py-12">
+
+  <div class="mb-8 sm:mb-10">
+    <div class="eyebrow">CASE DASHBOARD</div>
+    <h1 class="font-display font-extrabold uppercase text-3xl sm:text-4xl mt-2">Hey, <%= user.full_name.split(' ')[0] %>.</h1>
+  </div>
+
+  <!-- Summary stats -->
+  <div id="summary-stats" class="grid grid-cols-2 sm:grid-cols-4 gap-px bg-line border border-line mb-10 sm:mb-12">
+    <div class="bg-void p-5 sm:p-6">
+      <div class="font-mono text-2xl sm:text-3xl text-bone" id="stat-total">—</div>
+      <div class="text-xs text-bone-dim mt-1">Brokers tracked</div>
+    </div>
+    <div class="bg-void p-5 sm:p-6">
+      <div class="font-mono text-2xl sm:text-3xl text-verified" id="stat-removed">—</div>
+      <div class="text-xs text-bone-dim mt-1">Verified removed</div>
+    </div>
+    <div class="bg-void p-5 sm:p-6">
+      <div class="font-mono text-2xl sm:text-3xl text-bone" id="stat-pending">—</div>
+      <div class="text-xs text-bone-dim mt-1">Pending</div>
+    </div>
+    <div class="bg-void p-5 sm:p-6">
+      <div class="font-mono text-2xl sm:text-3xl text-signal" id="stat-not-started">—</div>
+      <div class="text-xs text-bone-dim mt-1">Not started</div>
+    </div>
+  </div>
+
+  <!-- Breach check (real API) -->
+  <section class="card p-5 sm:p-7 mb-10 sm:mb-12">
+    <div class="flex items-start justify-between gap-4 flex-wrap mb-4">
+      <div>
+        <div class="eyebrow mb-2">LIVE — HAVE I BEEN PWNED</div>
+        <h2 class="font-display font-extrabold uppercase text-xl sm:text-2xl">Breach exposure check</h2>
+      </div>
+    </div>
+    <form id="breach-form" class="flex flex-col sm:flex-row gap-3 mb-4">
+      <input type="email" id="breach-email" class="input-field flex-1" placeholder="Email to check" value="<%= user.email %>" required>
+      <button type="submit" id="breach-submit" class="btn-primary whitespace-nowrap">Run check →</button>
+    </form>
+    <div id="breach-result" class="hidden"></div>
+    <div id="breach-error" class="hidden font-mono text-sm text-signal mt-3"></div>
+  </section>
+
+  <!-- Profile identifiers -->
+  <section class="card p-5 sm:p-7 mb-10 sm:mb-12">
+    <div class="eyebrow mb-2">YOUR PROFILE</div>
+    <h2 class="font-display font-extrabold uppercase text-xl sm:text-2xl mb-4">Identifiers for removal requests</h2>
+    <p class="text-sm text-bone-dim mb-5 max-w-[560px]">Add the emails, phone numbers, and addresses you want removed. These get pulled into every generated opt-out request.</p>
+
+    <div id="identifiers-list" class="flex flex-col gap-2 mb-5"></div>
+
+    <form id="identifier-form" class="flex flex-col sm:flex-row gap-3">
+      <select id="identifier-type" class="input-field sm:w-40">
+        <option value="email">Email</option>
+        <option value="phone">Phone</option>
+        <option value="address">Address</option>
+      </select>
+      <input type="text" id="identifier-value" class="input-field flex-1" placeholder="Add a value" required>
+      <button type="submit" class="btn-outline whitespace-nowrap">Add →</button>
+    </form>
+  </section>
+
+  <!-- Broker case files -->
+  <section>
+    <div class="flex items-end justify-between gap-4 flex-wrap mb-5">
+      <div>
+        <div class="eyebrow mb-2">CASE FILES</div>
+        <h2 class="font-display font-extrabold uppercase text-xl sm:text-2xl">Broker by broker.</h2>
+      </div>
+      <div class="flex gap-2 font-mono text-xs">
+        <button class="filter-btn px-3 py-1.5 border border-line-strong bg-bone text-void" data-filter="all">All</button>
+        <button class="filter-btn px-3 py-1.5 border border-line-strong text-bone-dim" data-filter="not_started">Not started</button>
+        <button class="filter-btn px-3 py-1.5 border border-line-strong text-bone-dim" data-filter="verified_removed">Removed</button>
+      </div>
+    </div>
+
+    <div id="broker-list" class="flex flex-col gap-3"></div>
+  </section>
+
+</main>
+
+<!-- Detail modal -->
+<div id="case-modal" class="hidden fixed inset-0 bg-void/90 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6">
+  <div class="bg-panel border border-line w-full sm:max-w-lg sm:max-h-[85vh] max-h-[90vh] overflow-y-auto rounded-t-lg sm:rounded-none">
+    <div class="sticky top-0 bg-panel border-b border-line p-5 flex justify-between items-start gap-4">
+      <div>
+        <div class="font-mono text-[11px] text-steel" id="modal-category">—</div>
+        <h3 class="font-display font-extrabold uppercase text-2xl mt-1" id="modal-name">—</h3>
+      </div>
+      <button id="modal-close" class="text-steel hover:text-bone text-2xl leading-none">×</button>
+    </div>
+    <div class="p-5 flex flex-col gap-5">
+      <div>
+        <div class="tag-mono text-steel mb-2">Opt-out method</div>
+        <p class="text-sm text-bone-dim" id="modal-method">—</p>
+      </div>
+      <div>
+        <div class="tag-mono text-steel mb-2">Process</div>
+        <p class="text-sm text-bone-dim leading-relaxed" id="modal-notes">—</p>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <div class="tag-mono text-steel mb-1">Avg. response</div>
+          <p class="text-sm text-bone" id="modal-response">—</p>
+        </div>
+        <div>
+          <div class="tag-mono text-steel mb-1">Reappears after</div>
+          <p class="text-sm text-bone" id="modal-reappears">—</p>
+        </div>
+      </div>
+
+      <div>
+        <div class="tag-mono text-steel mb-2">Generated request text</div>
+        <textarea id="modal-request-text" class="input-field h-40 font-mono text-xs" readonly></textarea>
+        <button id="modal-copy" class="btn-outline mt-2 text-xs">Copy text</button>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-3">
+        <a id="modal-visit-link" href="#" target="_blank" rel="noopener" class="btn-outline text-center flex-1">Open broker page →</a>
+        <button id="modal-send-email" class="btn-primary flex-1 hidden">Send email now</button>
+      </div>
+
+      <div>
+        <div class="tag-mono text-steel mb-2">Status</div>
+        <select id="modal-status" class="input-field">
+          <option value="not_started">Not started</option>
+          <option value="request_sent">Request sent</option>
+          <option value="pending">Pending</option>
+          <option value="verified_removed">Verified removed</option>
+          <option value="reappeared">Reappeared</option>
+        </select>
+      </div>
+
+      <p class="font-mono text-[11px] text-steel" id="modal-source">—</p>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>
+
+<script src="/js/dashboard.js"></script>
+</body>
+</html>

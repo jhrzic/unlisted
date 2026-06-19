@@ -1,0 +1,62 @@
+<nav class="sticky top-0 z-50 bg-void/85 backdrop-blur-md border-b border-line">
+  <div class="max-w-[1180px] mx-auto px-5 sm:px-8 py-4 flex items-center justify-between">
+    <a href="/" class="font-display font-extrabold text-xl sm:text-2xl flex items-baseline gap-2">
+      UNLISTED
+      <span class="inline-block bg-signal text-void font-mono text-[10px] font-semibold px-1.5 py-0.5 -translate-y-0.5">v.</span>
+    </a>
+
+    <div class="hidden md:flex items-center gap-9 text-sm font-medium text-bone-dim">
+      <a href="/#process" class="hover:text-bone transition-colors">How it works</a>
+      <a href="/#pricing" class="hover:text-bone transition-colors">Pricing</a>
+      <a href="/#proof" class="hover:text-bone transition-colors">Proof</a>
+      <a href="/#faq" class="hover:text-bone transition-colors">FAQ</a>
+    </div>
+
+    <div class="hidden md:flex items-center gap-3">
+      <% if (user) { %>
+        <a href="/dashboard" class="btn-outline">Dashboard</a>
+        <form action="/logout" method="POST"><button class="btn-outline" type="submit">Log out</button></form>
+      <% } else { %>
+        <a href="/login" class="text-sm text-bone-dim hover:text-bone">Log in</a>
+        <a href="/signup" class="btn-outline">Get started →</a>
+      <% } %>
+    </div>
+
+    <button id="mobile-menu-btn" class="md:hidden p-2 -mr-2" aria-label="Toggle menu" aria-expanded="false">
+      <svg id="icon-open" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      <svg id="icon-close" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+  </div>
+
+  <div id="mobile-menu" class="hidden md:hidden border-t border-line bg-void">
+    <div class="px-5 py-4 flex flex-col gap-1 text-sm font-medium">
+      <a href="/#process" class="py-3 border-b border-line text-bone-dim">How it works</a>
+      <a href="/#pricing" class="py-3 border-b border-line text-bone-dim">Pricing</a>
+      <a href="/#proof" class="py-3 border-b border-line text-bone-dim">Proof</a>
+      <a href="/#faq" class="py-3 border-b border-line text-bone-dim">FAQ</a>
+      <% if (user) { %>
+        <a href="/dashboard" class="py-3 border-b border-line text-bone">Dashboard</a>
+        <form action="/logout" method="POST" class="py-3"><button type="submit" class="text-bone-dim">Log out</button></form>
+      <% } else { %>
+        <a href="/login" class="py-3 border-b border-line text-bone-dim">Log in</a>
+        <a href="/signup" class="py-3 text-signal font-semibold">Get started →</a>
+      <% } %>
+    </div>
+  </div>
+</nav>
+
+<script>
+  (function () {
+    var btn = document.getElementById('mobile-menu-btn');
+    var menu = document.getElementById('mobile-menu');
+    var iconOpen = document.getElementById('icon-open');
+    var iconClose = document.getElementById('icon-close');
+    btn.addEventListener('click', function () {
+      var isHidden = menu.classList.contains('hidden');
+      menu.classList.toggle('hidden');
+      iconOpen.classList.toggle('hidden');
+      iconClose.classList.toggle('hidden');
+      btn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+    });
+  })();
+</script>

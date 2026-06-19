@@ -1,0 +1,129 @@
+@import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background-color: theme('colors.void.DEFAULT');
+    color: theme('colors.bone.DEFAULT');
+    font-family: theme('fontFamily.body');
+    -webkit-font-smoothing: antialiased;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+  :focus-visible {
+    outline: 2px solid theme('colors.signal.DEFAULT');
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .eyebrow {
+    font-family: theme('fontFamily.mono');
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: theme('colors.steel');
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    background: theme('colors.signal.DEFAULT');
+    border-radius: 50%;
+    flex: none;
+  }
+
+  .btn-primary {
+    background: theme('colors.bone.DEFAULT');
+    color: theme('colors.void.DEFAULT');
+    font-weight: 700;
+    padding: 0.9rem 1.75rem;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .btn-primary:hover {
+    background: #fff;
+    transform: translateY(-1px);
+  }
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .btn-outline {
+    border: 1px solid theme('colors.line-strong');
+    color: theme('colors.bone.DEFAULT');
+    font-family: theme('fontFamily.mono');
+    font-size: 0.8125rem;
+    padding: 0.65rem 1.1rem;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .btn-outline:hover {
+    border-color: theme('colors.signal.DEFAULT');
+    background: rgba(255, 59, 48, 0.08);
+  }
+
+  .input-field {
+    width: 100%;
+    background: theme('colors.void.soft');
+    border: 1px solid theme('colors.line-strong');
+    color: theme('colors.bone.DEFAULT');
+    font-size: 0.9375rem;
+    padding: 0.8rem 1rem;
+    transition: border-color 0.2s;
+  }
+  .input-field::placeholder {
+    color: theme('colors.steel');
+  }
+  .input-field:focus {
+    outline: none;
+    border-color: theme('colors.signal.DEFAULT');
+  }
+
+  .card {
+    background: theme('colors.panel');
+    border: 1px solid theme('colors.line');
+  }
+
+  .tag-mono {
+    font-family: theme('fontFamily.mono');
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .status-pill {
+    font-family: theme('fontFamily.mono');
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.6rem;
+    border-radius: 2px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .status-pill .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+}
