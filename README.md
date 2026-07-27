@@ -91,6 +91,25 @@ a signal-red redaction bar, monospace "dossier" styling for data fields and
 stats, condensed display type for headlines. Token system lives in
 `tailwind.config.js`.
 
+## Synthos landing page
+
+A standalone marketing landing page for **Synthos** (an AI-agent orchestration
+concept) lives at `GET /synthos` → `views/synthos.ejs`, with its interactive
+JS in `public/js/synthos.js`. It's self-contained (its own dark UI, no Tailwind
+build step) and demonstrates:
+
+- an animated **orchestration graph** in the hero (agents around a central
+  orchestrator with data packets flowing along each handoff edge),
+- a live **agent handoff pipeline** that lights up stage-by-stage with a
+  streaming, typewriter-style handoff log, and
+- an **architecture topology** graph (fan-out → merge → reviewer gate with a
+  loop-back-on-failure edge → deploy).
+
+All motion is CSS/SVG-based and respects `prefers-reduced-motion` (SVG flow is
+paused, reveal/typewriter effects are skipped). Per the app's CSP the page's JS
+is served same-origin from `public/js/`; inline styles and Google Fonts are
+allowed.
+
 ## Pricing
 
 Tier structure and pricing match incogni.com's public pricing page (Standard

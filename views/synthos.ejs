@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Synthos — The orchestration layer for AI agents</title>
+  <meta name="description" content="Synthos orchestrates teams of AI agents that plan, research, build, review, and ship — handing work off to each other automatically. Visual orchestration, live observability, and guardrails." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;450;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #07080b;
+      --bg-2: #0a0c11;
+      --surface: rgba(255, 255, 255, 0.028);
+      --surface-2: rgba(255, 255, 255, 0.05);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-2: rgba(255, 255, 255, 0.15);
+      --text: #edeff3;
+      --muted: #9aa1ad;
+      --faint: #6a7180;
+      --violet: #8b7bff;
+      --indigo: #6366f1;
+      --cyan: #22d3ee;
+      --emerald: #34d399;
+      --amber: #fbbf24;
+      --rose: #f472b6;
+      --grad: linear-gradient(115deg, #8b7bff 0%, #6366f1 42%, #22d3ee 100%);
+      --shadow: 0 24px 70px -30px rgba(99, 102, 241, 0.55);
+      --maxw: 1200px;
+      --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
+      font-weight: 450;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    h1, h2, h3 { font-family: "Space Grotesk", sans-serif; font-weight: 700; letter-spacing: -0.02em; margin: 0; }
+    ::selection { background: rgba(139, 123, 255, 0.35); }
+
+    /* ambient background */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background:
+        radial-gradient(60% 55% at 78% -5%, rgba(99, 102, 241, 0.16), transparent 60%),
+        radial-gradient(50% 45% at 8% 8%, rgba(34, 211, 238, 0.10), transparent 55%),
+        radial-gradient(45% 50% at 50% 108%, rgba(139, 123, 255, 0.12), transparent 60%);
+    }
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
+      background-size: 58px 58px;
+      mask-image: radial-gradient(circle at 50% 30%, #000 0%, transparent 78%);
+      -webkit-mask-image: radial-gradient(circle at 50% 30%, #000 0%, transparent 78%);
+    }
+
+    .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+    }
+    .eyebrow::before {
+      content: "";
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--grad);
+      box-shadow: 0 0 12px rgba(139, 123, 255, 0.9);
+    }
+    .gradient-text {
+      background: var(--grad);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    /* buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 15px;
+      padding: 13px 22px;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: transform 0.16s ease, box-shadow 0.2s ease, background 0.2s, border-color 0.2s;
+      white-space: nowrap;
+    }
+    .btn-primary {
+      color: #0a0b10;
+      background: linear-gradient(115deg, #a99cff, #7c81ff 45%, #55d8ee);
+      box-shadow: var(--shadow);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 30px 80px -28px rgba(99, 102, 241, 0.8); }
+    .btn-ghost { color: var(--text); border-color: var(--border-2); background: var(--surface); }
+    .btn-ghost:hover { border-color: rgba(255, 255, 255, 0.4); background: var(--surface-2); transform: translateY(-1px); }
+    .btn-sm { padding: 9px 15px; font-size: 13.5px; border-radius: 10px; }
+
+    /* nav */
+    header.nav {
+      position: sticky;
+      top: 0;
+      z-index: 60;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: rgba(7, 8, 11, 0.68);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 66px; }
+    .brand { display: flex; align-items: center; gap: 11px; font-family: "Space Grotesk"; font-weight: 700; font-size: 19px; letter-spacing: -0.01em; }
+    .brand .mark { width: 30px; height: 30px; display: block; }
+    .nav-links { display: flex; align-items: center; gap: 30px; }
+    .nav-links a { color: var(--muted); font-size: 14.5px; font-weight: 500; transition: color 0.18s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta { display: flex; align-items: center; gap: 12px; }
+    #nav-toggle { display: none; background: none; border: 0; color: var(--text); cursor: pointer; padding: 8px; }
+    #nav-menu.mobile { display: none; }
+
+    /* hero */
+    .hero { position: relative; padding: 74px 0 40px; }
+    .hero-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 46px; align-items: center; }
+    .badge-row { display: inline-flex; align-items: center; gap: 10px; padding: 6px 6px 6px 14px; border: 1px solid var(--border-2); border-radius: 100px; background: var(--surface); font-size: 13px; color: var(--muted); margin-bottom: 26px; }
+    .badge-row b { color: var(--text); font-weight: 600; }
+    .badge-row .pill { font-family: var(--mono); font-size: 11px; padding: 3px 9px; border-radius: 100px; background: var(--grad); color: #0a0b10; font-weight: 600; }
+    h1.hero-title { font-size: clamp(2.5rem, 5.6vw, 4.35rem); line-height: 1.02; }
+    .hero-sub { color: var(--muted); font-size: clamp(1rem, 1.4vw, 1.18rem); max-width: 500px; margin: 22px 0 30px; line-height: 1.62; }
+    .hero-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .hero-note { font-family: var(--mono); font-size: 12px; color: var(--faint); margin-top: 22px; display: flex; gap: 20px; flex-wrap: wrap; }
+    .hero-note span { display: inline-flex; align-items: center; gap: 7px; }
+    .dot-ok { width: 6px; height: 6px; border-radius: 50%; background: var(--emerald); box-shadow: 0 0 8px var(--emerald); }
+
+    /* ===== orchestration orb (hero graph) ===== */
+    .orb-frame {
+      position: relative;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background:
+        radial-gradient(120% 90% at 50% 0%, rgba(99, 102, 241, 0.12), transparent 60%),
+        var(--surface);
+      padding: 18px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .orb-frame .frame-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; padding: 2px 4px 12px; border-bottom: 1px solid var(--border); }
+    .frame-head .ftitle { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+    .frame-head .live { font-family: var(--mono); font-size: 11px; color: var(--emerald); display: inline-flex; align-items: center; gap: 7px; }
+    .frame-head .live .dot-ok { animation: blink 1.8s ease-in-out infinite; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+    .orb { position: relative; width: 100%; aspect-ratio: 100 / 92; margin: 8px auto 2px; transition: transform 0.25s ease-out; }
+    .orb-lines { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .node {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 11px 7px 8px;
+      border-radius: 12px;
+      background: rgba(14, 16, 22, 0.92);
+      border: 1px solid var(--border-2);
+      backdrop-filter: blur(6px);
+      white-space: nowrap;
+      box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.8);
+    }
+    .node .ic {
+      width: 26px; height: 26px; border-radius: 8px; flex: none;
+      display: grid; place-items: center;
+      background: color-mix(in srgb, var(--c) 22%, transparent);
+      color: var(--c);
+      border: 1px solid color-mix(in srgb, var(--c) 40%, transparent);
+    }
+    .node .ic svg { width: 15px; height: 15px; }
+    .node .nlabel { display: flex; flex-direction: column; line-height: 1.15; }
+    .node .nlabel b { font-size: 12.5px; font-weight: 600; letter-spacing: -0.01em; }
+    .node .nlabel span { font-family: var(--mono); font-size: 9.5px; color: var(--faint); letter-spacing: 0.04em; }
+    .node::after {
+      content: "";
+      position: absolute; inset: -1px; border-radius: 12px;
+      border: 1px solid color-mix(in srgb, var(--c) 55%, transparent);
+      opacity: 0; animation: nodepulse 3.4s ease-in-out infinite; animation-delay: var(--d, 0s);
+      pointer-events: none;
+    }
+    @keyframes nodepulse { 0%, 100% { opacity: 0; transform: scale(1); } 45% { opacity: 0.9; transform: scale(1.06); } }
+    .node--orch { --c: #b9b2ff; z-index: 3; padding: 9px 14px 9px 9px; background: rgba(18, 18, 30, 0.96); border-color: rgba(180, 170, 255, 0.5); }
+    .node--orch .ic { width: 30px; height: 30px; background: var(--grad); color: #0a0b10; border: 0; }
+    .node--orch .ic svg { width: 17px; height: 17px; }
+    .node--plan { --c: var(--violet); }
+    .node--res  { --c: var(--cyan); }
+    .node--code { --c: var(--emerald); }
+    .node--rev  { --c: var(--amber); }
+    .node--dep  { --c: var(--rose); }
+
+    /* ===== marquee / logos ===== */
+    .marq { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 22px 0; margin-top: 30px; }
+    .marq .wrap { display: flex; align-items: center; gap: 34px; flex-wrap: wrap; justify-content: center; }
+    .marq span { font-family: var(--mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); }
+    .marq b { color: var(--muted); font-family: "Space Grotesk"; font-weight: 600; font-size: 16px; opacity: 0.8; letter-spacing: 0.01em; }
+
+    /* section scaffolding */
+    section.sec { padding: 96px 0; }
+    .sec-head { max-width: 660px; margin-bottom: 52px; }
+    .sec-head h2 { font-size: clamp(1.9rem, 3.6vw, 2.9rem); line-height: 1.05; margin: 16px 0 0; }
+    .sec-head p { color: var(--muted); font-size: 1.08rem; margin: 16px 0 0; line-height: 1.6; }
+
+    [data-reveal] { opacity: 0; transform: translateY(22px); transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1); }
+    [data-reveal].is-in { opacity: 1; transform: none; }
+
+    /* ===== stat strip ===== */
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; background: var(--surface); }
+    .stats .stat { padding: 30px 26px; border-right: 1px solid var(--border); }
+    .stats .stat:last-child { border-right: 0; }
+    .stat .num { font-family: "Space Grotesk"; font-weight: 700; font-size: clamp(2rem, 3.4vw, 2.9rem); letter-spacing: -0.02em; }
+    .stat .lbl { color: var(--muted); font-size: 13.5px; margin-top: 6px; }
+
+    /* ===== pipeline / handoff ===== */
+    .pipe { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 34px; align-items: stretch; }
+    .pipe-board { border: 1px solid var(--border); border-radius: 20px; background: var(--surface); padding: 30px 26px; }
+    .pipe-flow { display: flex; align-items: stretch; gap: 0; }
+    .pipe-stage { flex: 1; position: relative; text-align: center; padding: 4px; transition: transform 0.3s; }
+    .pipe-stage .chip {
+      border: 1px solid var(--border-2);
+      border-radius: 14px;
+      padding: 16px 8px 14px;
+      background: rgba(255, 255, 255, 0.02);
+      transition: border-color 0.35s, background 0.35s, box-shadow 0.35s, transform 0.35s;
+    }
+    .pipe-stage .ic { width: 38px; height: 38px; border-radius: 11px; margin: 0 auto 10px; display: grid; place-items: center; background: color-mix(in srgb, var(--c) 16%, transparent); color: var(--c); border: 1px solid color-mix(in srgb, var(--c) 34%, transparent); transition: transform 0.35s; }
+    .pipe-stage .ic svg { width: 20px; height: 20px; }
+    .pipe-stage b { display: block; font-size: 13.5px; font-weight: 600; }
+    .pipe-stage span { font-family: var(--mono); font-size: 10px; color: var(--faint); letter-spacing: 0.05em; }
+    .pipe-stage.is-active .chip { border-color: var(--c); background: color-mix(in srgb, var(--c) 12%, transparent); box-shadow: 0 0 0 1px var(--c), 0 18px 40px -22px var(--c); transform: translateY(-4px); }
+    .pipe-stage.is-active .ic { transform: scale(1.08); }
+    .pipe-stage.is-done .ic { background: color-mix(in srgb, var(--emerald) 16%, transparent); border-color: color-mix(in srgb, var(--emerald) 40%, transparent); color: var(--emerald); }
+    .pipe-conn { align-self: center; width: 26px; height: 2px; position: relative; flex: none; background: var(--border-2); margin-top: -18px; }
+    .pipe-conn::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, var(--violet), transparent); background-size: 220% 100%; animation: flow 1.6s linear infinite; border-radius: 2px; }
+    @keyframes flow { 0% { background-position: 120% 0; } 100% { background-position: -120% 0; } }
+    .pipe-stage-c { --c: var(--rose); }
+
+    .pipe-caption { display: flex; align-items: center; justify-content: space-between; margin-top: 26px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 13.5px; color: var(--muted); }
+    .pipe-caption .k { font-family: var(--mono); font-size: 11px; color: var(--faint); text-transform: uppercase; letter-spacing: 0.1em; }
+
+    /* handoff log terminal */
+    .term { border: 1px solid var(--border); border-radius: 20px; background: linear-gradient(180deg, rgba(12, 14, 20, 0.9), rgba(8, 9, 13, 0.9)); display: flex; flex-direction: column; overflow: hidden; }
+    .term-head { display: flex; align-items: center; gap: 8px; padding: 13px 16px; border-bottom: 1px solid var(--border); }
+    .term-head .tdot { width: 11px; height: 11px; border-radius: 50%; }
+    .term-head .t1 { background: #ff5f56; } .term-head .t2 { background: #ffbd2e; } .term-head .t3 { background: #27c93f; }
+    .term-head .tname { margin-left: 8px; font-family: var(--mono); font-size: 11.5px; color: var(--faint); }
+    #handoff-log { padding: 16px 16px 20px; font-family: var(--mono); font-size: 12.5px; line-height: 1.5; flex: 1; min-height: 240px; }
+    .log-row { display: flex; gap: 10px; padding: 5px 0; align-items: baseline; }
+    .log-tag { flex: none; font-size: 10.5px; padding: 2px 7px; border-radius: 6px; letter-spacing: 0.02em; white-space: nowrap; }
+    .log-msg { color: var(--text); }
+    .log-msg::after { content: "▋"; color: var(--violet); animation: blink 1s step-end infinite; margin-left: 1px; }
+    .r-orch { background: rgba(185, 178, 255, 0.14); color: #c4bcff; }
+    .r-plan { background: rgba(139, 123, 255, 0.14); color: var(--violet); }
+    .r-res  { background: rgba(34, 211, 238, 0.13); color: var(--cyan); }
+    .r-code { background: rgba(52, 211, 153, 0.13); color: var(--emerald); }
+    .r-rev  { background: rgba(251, 191, 36, 0.13); color: var(--amber); }
+    .r-dep  { background: rgba(244, 114, 182, 0.13); color: var(--rose); }
+
+    /* ===== feature grid ===== */
+    .fgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .fcard { border: 1px solid var(--border); border-radius: 18px; padding: 26px; background: var(--surface); transition: border-color 0.25s, transform 0.25s, background 0.25s; position: relative; overflow: hidden; }
+    .fcard:hover { border-color: var(--border-2); transform: translateY(-4px); background: var(--surface-2); }
+    .fcard .fic { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; margin-bottom: 18px; background: color-mix(in srgb, var(--c) 15%, transparent); color: var(--c); border: 1px solid color-mix(in srgb, var(--c) 32%, transparent); }
+    .fcard .fic svg { width: 22px; height: 22px; }
+    .fcard h3 { font-size: 1.15rem; margin-bottom: 9px; }
+    .fcard p { color: var(--muted); font-size: 14.5px; line-height: 1.6; margin: 0; }
+    .fcard.c-v { --c: var(--violet); } .fcard.c-c { --c: var(--cyan); } .fcard.c-e { --c: var(--emerald); }
+    .fcard.c-a { --c: var(--amber); } .fcard.c-r { --c: var(--rose); } .fcard.c-i { --c: var(--indigo); }
+
+    /* ===== architecture topology ===== */
+    .topo { border: 1px solid var(--border); border-radius: 22px; background: radial-gradient(90% 120% at 50% -10%, rgba(99, 102, 241, 0.1), transparent 55%), var(--surface); padding: 28px; }
+    .topo svg { width: 100%; height: auto; display: block; }
+    .topo-legend { display: flex; gap: 22px; flex-wrap: wrap; margin-top: 18px; padding-top: 20px; border-top: 1px solid var(--border); }
+    .topo-legend span { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+    .topo-legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+
+    /* ===== steps ===== */
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .step { border: 1px solid var(--border); border-radius: 18px; padding: 28px; background: var(--surface); }
+    .step .k { font-family: var(--mono); font-size: 13px; color: var(--violet); }
+    .step h3 { font-size: 1.2rem; margin: 14px 0 10px; }
+    .step p { color: var(--muted); font-size: 14.5px; line-height: 1.6; margin: 0; }
+    .step pre { margin: 16px 0 0; background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-family: var(--mono); font-size: 12px; color: var(--muted); overflow-x: auto; }
+    .step pre .kw { color: var(--violet); } .step pre .st { color: var(--emerald); } .step pre .cm { color: var(--faint); }
+
+    /* ===== pricing ===== */
+    .price { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; align-items: stretch; }
+    .ptier { border: 1px solid var(--border); border-radius: 20px; padding: 30px; background: var(--surface); display: flex; flex-direction: column; }
+    .ptier.feat { border-color: transparent; background: linear-gradient(180deg, rgba(99, 102, 241, 0.14), rgba(34, 211, 238, 0.05)), var(--surface); box-shadow: var(--shadow); position: relative; }
+    .ptier.feat::before { content: ""; position: absolute; inset: 0; border-radius: 20px; padding: 1px; background: var(--grad); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
+    .ptier .pn { font-family: "Space Grotesk"; font-weight: 600; font-size: 15px; }
+    .ptier .badge { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; padding: 3px 9px; border-radius: 100px; background: var(--grad); color: #0a0b10; }
+    .ptier .amt { font-family: "Space Grotesk"; font-weight: 700; font-size: 2.6rem; letter-spacing: -0.02em; margin: 18px 0 2px; }
+    .ptier .amt small { font-size: 1rem; color: var(--muted); font-weight: 500; }
+    .ptier .pd { color: var(--muted); font-size: 14px; min-height: 40px; }
+    .ptier ul { list-style: none; padding: 0; margin: 20px 0 24px; display: flex; flex-direction: column; gap: 11px; }
+    .ptier li { display: flex; gap: 10px; font-size: 14px; color: var(--text); align-items: flex-start; }
+    .ptier li svg { width: 17px; height: 17px; flex: none; margin-top: 2px; color: var(--emerald); }
+    .ptier .btn { width: 100%; justify-content: center; margin-top: auto; }
+
+    /* ===== CTA ===== */
+    .cta { text-align: center; border: 1px solid var(--border); border-radius: 26px; padding: 66px 24px; background: radial-gradient(80% 130% at 50% 0%, rgba(99, 102, 241, 0.2), transparent 60%), var(--surface); position: relative; overflow: hidden; }
+    .cta h2 { font-size: clamp(2rem, 4.5vw, 3.2rem); line-height: 1.04; }
+    .cta p { color: var(--muted); max-width: 480px; margin: 18px auto 30px; font-size: 1.08rem; }
+
+    /* footer */
+    footer.ft { border-top: 1px solid var(--border); padding: 56px 0 40px; margin-top: 40px; }
+    .ft-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 34px; margin-bottom: 40px; }
+    .ft-grid h4 { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); margin: 0 0 16px; font-weight: 500; }
+    .ft-grid ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 11px; }
+    .ft-grid a { color: var(--muted); font-size: 14px; }
+    .ft-grid a:hover { color: var(--text); }
+    .ft-bottom { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-top: 26px; border-top: 1px solid var(--border); font-family: var(--mono); font-size: 12px; color: var(--faint); flex-wrap: wrap; }
+
+    /* responsive */
+    @media (max-width: 960px) {
+      .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+      .orb-frame { max-width: 520px; }
+      .pipe { grid-template-columns: 1fr; }
+      .fgrid, .steps, .price { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .stats .stat:nth-child(2) { border-right: 0; }
+      .stats .stat:nth-child(1), .stats .stat:nth-child(2) { border-bottom: 1px solid var(--border); }
+      .ft-grid { grid-template-columns: 1fr 1fr; }
+      .nav-links, .nav-cta .desk { display: none; }
+      #nav-toggle { display: block; }
+      #nav-menu.mobile { display: none; }
+      #nav-menu.mobile.is-open { display: flex; flex-direction: column; gap: 4px; position: absolute; top: 66px; left: 0; right: 0; background: rgba(7, 8, 11, 0.97); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 14px 24px 20px; }
+      #nav-menu.mobile a { padding: 12px 0; color: var(--muted); border-bottom: 1px solid var(--border); font-size: 15px; }
+      #nav-menu.mobile .btn { margin-top: 12px; justify-content: center; }
+    }
+    @media (max-width: 560px) {
+      .stats { grid-template-columns: 1fr; }
+      .stats .stat { border-right: 0; border-bottom: 1px solid var(--border); }
+      .stats .stat:last-child { border-bottom: 0; }
+      .pipe-flow { overflow-x: auto; padding-bottom: 8px; }
+      .pipe-stage { min-width: 88px; }
+      section.sec { padding: 68px 0; }
+      .ft-bottom { flex-direction: column; align-items: flex-start; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+      [data-reveal] { opacity: 1 !important; transform: none !important; }
+    }
+    :focus-visible { outline: 2px solid var(--violet); outline-offset: 3px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+
+  <!-- ================= NAV ================= -->
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="/synthos" aria-label="Synthos home">
+        <svg class="mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="mg" x1="0" y1="0" x2="32" y2="32">
+              <stop stop-color="#8b7bff"/><stop offset="0.5" stop-color="#6366f1"/><stop offset="1" stop-color="#22d3ee"/>
+            </linearGradient>
+          </defs>
+          <circle cx="16" cy="16" r="4.4" fill="url(#mg)"/>
+          <circle cx="6" cy="7" r="2.7" fill="url(#mg)"/>
+          <circle cx="26" cy="7" r="2.7" fill="url(#mg)"/>
+          <circle cx="6" cy="25" r="2.7" fill="url(#mg)"/>
+          <circle cx="26" cy="25" r="2.7" fill="url(#mg)"/>
+          <g stroke="url(#mg)" stroke-width="1.5" opacity="0.85">
+            <line x1="16" y1="16" x2="6" y2="7"/><line x1="16" y1="16" x2="26" y2="7"/>
+            <line x1="16" y1="16" x2="6" y2="25"/><line x1="16" y1="16" x2="26" y2="25"/>
+          </g>
+        </svg>
+        Synthos
+      </a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#platform">Platform</a>
+        <a href="#handoff">Handoffs</a>
+        <a href="#topology">Architecture</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#docs">Docs</a>
+      </nav>
+      <div class="nav-cta">
+        <a href="/login" class="desk" style="color:var(--muted);font-size:14.5px;font-weight:500;">Sign in</a>
+        <a href="/signup" class="btn btn-primary btn-sm desk">Start building</a>
+        <button id="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="nav-menu">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+    <div id="nav-menu" class="mobile">
+      <a href="#platform">Platform</a>
+      <a href="#handoff">Handoffs</a>
+      <a href="#topology">Architecture</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#docs">Docs</a>
+      <a href="/signup" class="btn btn-primary">Start building</a>
+    </div>
+  </header>
+
+  <!-- ================= HERO ================= -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <div class="badge-row">
+          <span class="pill">NEW</span>
+          <span><b>Handoff Graph</b> — watch agents delegate in real time</span>
+        </div>
+        <h1 class="hero-title">
+          Orchestrate agents that <span class="gradient-text">hand&nbsp;off like a team.</span>
+        </h1>
+        <p class="hero-sub">
+          Synthos is the orchestration layer for multi-agent systems. Compose specialist
+          agents that plan, research, build, review, and ship — passing work to each other
+          automatically, with full observability over every handoff.
+        </p>
+        <div class="hero-actions">
+          <a href="/signup" class="btn btn-primary">Start building free →</a>
+          <a href="#handoff" class="btn btn-ghost">See a live handoff</a>
+        </div>
+        <div class="hero-note">
+          <span><i class="dot-ok"></i> No credit card required</span>
+          <span><i class="dot-ok"></i> Model-agnostic</span>
+          <span><i class="dot-ok"></i> Deploy in minutes</span>
+        </div>
+      </div>
+
+      <!-- Orchestration graph -->
+      <div class="orb-frame" data-reveal>
+        <div class="frame-head">
+          <span class="ftitle">Orchestration · run #4821</span>
+          <span class="live"><i class="dot-ok"></i> 6 agents active</span>
+        </div>
+        <div class="orb">
+          <svg class="orb-lines" viewBox="0 0 100 92" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <defs>
+              <linearGradient id="edge" x1="0" y1="0" x2="1" y2="1">
+                <stop stop-color="#8b7bff" stop-opacity="0.15"/>
+                <stop offset="1" stop-color="#22d3ee" stop-opacity="0.5"/>
+              </linearGradient>
+              <radialGradient id="pk" cx="0.5" cy="0.5" r="0.5">
+                <stop stop-color="#ffffff"/><stop offset="1" stop-color="#8b7bff"/>
+              </radialGradient>
+            </defs>
+            <!-- edges: orchestrator(50,46) -> agents -->
+            <g stroke="url(#edge)" stroke-width="0.7" fill="none">
+              <path id="e1" d="M50,46 L24,18"/>
+              <path id="e2" d="M50,46 L76,18"/>
+              <path id="e3" d="M50,46 L84,58"/>
+              <path id="e4" d="M50,46 L50,80"/>
+              <path id="e5" d="M50,46 L16,58"/>
+              <path id="e6" d="M24,18 L76,18"/>
+              <path id="e7" d="M84,58 L50,80"/>
+            </g>
+            <!-- flowing packets (SMIL: frozen under reduced-motion via JS) -->
+            <circle r="1.5" fill="url(#pk)"><animateMotion dur="2.4s" repeatCount="indefinite" begin="0s"><mpath href="#e1"/></animateMotion></circle>
+            <circle r="1.5" fill="url(#pk)"><animateMotion dur="2.2s" repeatCount="indefinite" begin="0.7s"><mpath href="#e2"/></animateMotion></circle>
+            <circle r="1.5" fill="url(#pk)"><animateMotion dur="2.6s" repeatCount="indefinite" begin="0.3s"><mpath href="#e3"/></animateMotion></circle>
+            <circle r="1.5" fill="url(#pk)"><animateMotion dur="2.3s" repeatCount="indefinite" begin="1.1s"><mpath href="#e4"/></animateMotion></circle>
+            <circle r="1.5" fill="url(#pk)"><animateMotion dur="2.5s" repeatCount="indefinite" begin="0.5s"><mpath href="#e5"/></animateMotion></circle>
+            <circle r="1.2" fill="#22d3ee"><animateMotion dur="3s" repeatCount="indefinite" begin="1.4s" keyPoints="0;1" keyTimes="0;1"><mpath href="#e6"/></animateMotion></circle>
+            <circle r="1.2" fill="#f472b6"><animateMotion dur="2.8s" repeatCount="indefinite" begin="0.9s"><mpath href="#e7"/></animateMotion></circle>
+          </svg>
+
+          <div class="node node--orch" style="left:50%;top:50%;" data-reveal>
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M6 6l2 2M16 16l2 2M18 6l-2 2M8 16l-2 2" stroke-linecap="round"/></svg></span>
+            <span class="nlabel"><b>Orchestrator</b><span>routing · run</span></span>
+          </div>
+          <div class="node node--plan" style="left:24%;top:19.6%;--d:0s;">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5h11M9 12h11M9 19h11M4 5h.01M4 12h.01M4 19h.01" stroke-linecap="round"/></svg></span>
+            <span class="nlabel"><b>Planner</b><span>decompose</span></span>
+          </div>
+          <div class="node node--res" style="left:76%;top:19.6%;--d:0.5s;">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg></span>
+            <span class="nlabel"><b>Researcher</b><span>retrieve</span></span>
+          </div>
+          <div class="node node--code" style="left:84%;top:63%;--d:0.9s;">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4M13 5l-2 14" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="nlabel"><b>Coder</b><span>implement</span></span>
+          </div>
+          <div class="node node--rev" style="left:50%;top:87%;--d:1.3s;">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="nlabel"><b>Reviewer</b><span>verify</span></span>
+          </div>
+          <div class="node node--dep" style="left:16%;top:63%;--d:1.7s;">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z" stroke-linejoin="round"/></svg></span>
+            <span class="nlabel"><b>Deployer</b><span>ship</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= LOGO STRIP ================= -->
+  <div class="marq">
+    <div class="wrap">
+      <span>Model-agnostic — bring your own</span>
+      <b>Claude</b><b>GPT</b><b>Gemini</b><b>Llama</b><b>Mistral</b><b>Local</b>
+    </div>
+  </div>
+
+  <!-- ================= STATS ================= -->
+  <section class="sec" id="platform" style="padding-top:80px;">
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <span class="eyebrow">The orchestration layer</span>
+        <h2>One graph. Every agent. Total visibility.</h2>
+        <p>Stop wiring brittle chains by hand. Synthos routes tasks between specialist agents,
+          retries and reroutes on failure, and shows you exactly who did what — and where the handoff happened.</p>
+      </div>
+      <div class="stats" data-reveal>
+        <div class="stat">
+          <div class="num gradient-text"><span data-count="98.9" data-decimals="1" data-suffix="%">0</span></div>
+          <div class="lbl">Handoff success rate across runs</div>
+        </div>
+        <div class="stat">
+          <div class="num"><span data-count="6" data-suffix="×">0</span></div>
+          <div class="lbl">Faster than hand-built chains</div>
+        </div>
+        <div class="stat">
+          <div class="num"><span data-count="40" data-suffix="+">0</span></div>
+          <div class="lbl">Prebuilt agent templates</div>
+        </div>
+        <div class="stat">
+          <div class="num"><span data-count="12" data-suffix="M+">0</span></div>
+          <div class="lbl">Agent handoffs orchestrated</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= HANDOFF / PIPELINE ================= -->
+  <section class="sec" id="handoff" style="padding-top:24px;">
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <span class="eyebrow">Agent handoffs, live</span>
+        <h2>Watch work move down the line.</h2>
+        <p>Each agent owns one job. When it's done, Synthos hands the result — with full context —
+          to the next agent in the graph. Follow every delegation in the live log.</p>
+      </div>
+
+      <div class="pipe" data-reveal>
+        <!-- Pipeline board -->
+        <div class="pipe-board">
+          <div class="pipe-flow">
+            <div class="pipe-stage" style="--c:var(--violet)">
+              <div class="chip">
+                <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5h11M9 12h11M9 19h11M4 5h.01M4 12h.01M4 19h.01" stroke-linecap="round"/></svg></div>
+                <b>Planner</b><span>decompose</span>
+              </div>
+            </div>
+            <div class="pipe-conn" style="--violet:var(--violet)"></div>
+            <div class="pipe-stage" style="--c:var(--cyan)">
+              <div class="chip">
+                <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg></div>
+                <b>Researcher</b><span>retrieve</span>
+              </div>
+            </div>
+            <div class="pipe-conn"></div>
+            <div class="pipe-stage" style="--c:var(--emerald)">
+              <div class="chip">
+                <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 8l-4 4 4 4M16 8l4 4-4 4M13 5l-2 14" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                <b>Coder</b><span>implement</span>
+              </div>
+            </div>
+            <div class="pipe-conn"></div>
+            <div class="pipe-stage" style="--c:var(--amber)">
+              <div class="chip">
+                <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                <b>Reviewer</b><span>verify</span>
+              </div>
+            </div>
+            <div class="pipe-conn"></div>
+            <div class="pipe-stage" style="--c:var(--rose)">
+              <div class="chip">
+                <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z" stroke-linejoin="round"/></svg></div>
+                <b>Deployer</b><span>ship</span>
+              </div>
+            </div>
+          </div>
+          <div class="pipe-caption">
+            <span class="k">Task: “ship onboarding email flow”</span>
+            <span>Context, artifacts &amp; state travel with every handoff</span>
+          </div>
+        </div>
+
+        <!-- Live handoff log -->
+        <div class="term">
+          <div class="term-head">
+            <i class="tdot t1"></i><i class="tdot t2"></i><i class="tdot t3"></i>
+            <span class="tname">handoff-graph · live</span>
+          </div>
+          <div id="handoff-log" role="log" aria-live="polite" aria-label="Live agent handoff log"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FEATURES ================= -->
+  <section class="sec" style="padding-top:24px;">
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <span class="eyebrow">Built for real workloads</span>
+        <h2>Everything you need to run agents in production.</h2>
+      </div>
+      <div class="fgrid">
+        <div class="fcard c-v" data-reveal>
+          <div class="fic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="M8 7l3 9M16 7l-3 9" stroke-linecap="round"/></svg></div>
+          <h3>Visual orchestration</h3>
+          <p>Compose agents on a graph, not in tangled code. Drag connections to define who hands off to whom.</p>
+        </div>
+        <div class="fcard c-c" data-reveal>
+          <div class="fic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h11M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h3>Automatic handoffs</h3>
+          <p>Agents delegate on their own. Synthos routes results, retries failures, and reroutes around stuck agents.</p>
+        </div>
+        <div class="fcard c-e" data-reveal>
+          <div class="fic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3 8 4-16 3 8h4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h3>Full observability</h3>
+          <p>Trace every message, tool call, token, and handoff. Replay any run step-by-step to see what happened.</p>
+        </div>
+        <div class="fcard c-a" data-reveal>
+          <div class="fic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z" stroke-linejoin="round"/></svg></div>
+          <h3>Guardrails &amp; policy</h3>
+          <p>Set budgets, tool permissions, and approval gates per agent. Nothing ships without passing your rules.</p>
+        </div>
+        <div class="fcard c-r" data-reveal>
+          <div class="fic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M5 8l7-5 7 5M5 16l7 5 7-5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h3>Shared memory</h3>
+          <p>A common context store means agents never lose the thread across a long, multi-step handoff chain.</p>
+        </div>
+        <div class="fcard c-i" data-reveal>
+          <div class="fic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6" stroke-linecap="round"/></svg></div>
+          <h3>Human-in-the-loop</h3>
+          <p>Insert an approval step anywhere in the graph. A human reviews, then work hands back to the agents.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TOPOLOGY / ARCHITECTURE GRAPH ================= -->
+  <section class="sec" id="topology" style="padding-top:24px;">
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <span class="eyebrow">Handoff architecture</span>
+        <h2>Any topology, from a chain to a swarm.</h2>
+        <p>Fan out to parallel specialists, merge their results, gate on a reviewer, and loop back on failure —
+          Synthos routes data through whatever agent graph your task needs.</p>
+      </div>
+
+      <div class="topo" data-reveal>
+        <svg viewBox="0 0 1000 300" preserveAspectRatio="xMidYMid meet" role="img" aria-label="A directed graph showing how a task flows from input through an orchestrator, fans out to parallel planner and researcher agents, merges into a coder, passes to a reviewer that loops back to the coder on failure, and finally reaches a deployer that ships the result.">
+          <defs>
+            <linearGradient id="te" x1="0" y1="0" x2="1" y2="0">
+              <stop stop-color="#8b7bff" stop-opacity="0.3"/><stop offset="1" stop-color="#22d3ee" stop-opacity="0.6"/>
+            </linearGradient>
+            <radialGradient id="tp" cx="0.5" cy="0.5" r="0.5"><stop stop-color="#fff"/><stop offset="1" stop-color="#7cf"/></radialGradient>
+          </defs>
+
+          <!-- edges -->
+          <g fill="none" stroke="url(#te)" stroke-width="2">
+            <path id="t1" d="M84,150 H172"/>
+            <path id="t2" d="M280,150 C324,150 324,80 368,80"/>
+            <path id="t3" d="M280,150 C324,150 324,220 368,220"/>
+            <path id="t4" d="M492,80 C536,80 536,150 560,150"/>
+            <path id="t5" d="M492,220 C536,220 536,150 560,150"/>
+            <path id="t6" d="M664,150 H716"/>
+            <path id="t8" d="M820,150 H864"/>
+          </g>
+          <!-- fail loop-back: reviewer -> coder -->
+          <path id="t7" d="M768,174 C768,262 612,262 612,182" fill="none" stroke="#fbbf24" stroke-width="2" stroke-dasharray="5 6" stroke-opacity="0.6"/>
+
+          <!-- flowing packets -->
+          <circle r="3.5" fill="url(#tp)"><animateMotion dur="1.6s" repeatCount="indefinite"><mpath href="#t1"/></animateMotion></circle>
+          <circle r="3.5" fill="url(#tp)"><animateMotion dur="2s" repeatCount="indefinite" begin="0.4s"><mpath href="#t2"/></animateMotion></circle>
+          <circle r="3.5" fill="url(#tp)"><animateMotion dur="2s" repeatCount="indefinite" begin="0.9s"><mpath href="#t3"/></animateMotion></circle>
+          <circle r="3.5" fill="#34d399"><animateMotion dur="1.8s" repeatCount="indefinite" begin="1.3s"><mpath href="#t4"/></animateMotion></circle>
+          <circle r="3.5" fill="#34d399"><animateMotion dur="1.8s" repeatCount="indefinite" begin="1.6s"><mpath href="#t5"/></animateMotion></circle>
+          <circle r="3.5" fill="#fbbf24"><animateMotion dur="1.6s" repeatCount="indefinite" begin="2s"><mpath href="#t6"/></animateMotion></circle>
+          <circle r="3" fill="#fbbf24"><animateMotion dur="2.8s" repeatCount="indefinite" begin="2.3s"><mpath href="#t7"/></animateMotion></circle>
+          <circle r="3.5" fill="#f472b6"><animateMotion dur="1.5s" repeatCount="indefinite" begin="2.6s"><mpath href="#t8"/></animateMotion></circle>
+
+          <!-- nodes -->
+          <g font-family="'JetBrains Mono', monospace">
+            <g><rect x="20" y="128" width="64" height="44" rx="11" fill="#0e1016" stroke="rgba(255,255,255,0.22)"/><text x="52" y="154" fill="#9aa1ad" font-size="12" text-anchor="middle">input</text></g>
+            <g><rect x="172" y="120" width="108" height="60" rx="14" fill="#12121e" stroke="#b9b2ff" stroke-opacity="0.6"/><circle cx="194" cy="150" r="6" fill="#b9b2ff"/><text x="230" y="146" fill="#edeff3" font-size="12.5" text-anchor="middle">Orchestr.</text><text x="230" y="163" fill="#6a7180" font-size="9" text-anchor="middle">router</text></g>
+            <g><rect x="368" y="56" width="124" height="48" rx="12" fill="#0e1016" stroke="#8b7bff" stroke-opacity="0.6"/><circle cx="390" cy="80" r="5.5" fill="#8b7bff"/><text x="436" y="78" fill="#edeff3" font-size="12" text-anchor="middle">Planner</text><text x="436" y="93" fill="#6a7180" font-size="9" text-anchor="middle">decompose</text></g>
+            <g><rect x="368" y="196" width="124" height="48" rx="12" fill="#0e1016" stroke="#22d3ee" stroke-opacity="0.6"/><circle cx="390" cy="220" r="5.5" fill="#22d3ee"/><text x="436" y="218" fill="#edeff3" font-size="12" text-anchor="middle">Researcher</text><text x="436" y="233" fill="#6a7180" font-size="9" text-anchor="middle">retrieve</text></g>
+            <g><rect x="560" y="126" width="104" height="48" rx="12" fill="#0e1016" stroke="#34d399" stroke-opacity="0.6"/><circle cx="582" cy="150" r="5.5" fill="#34d399"/><text x="618" y="148" fill="#edeff3" font-size="12" text-anchor="middle">Coder</text><text x="618" y="163" fill="#6a7180" font-size="9" text-anchor="middle">implement</text></g>
+            <g><rect x="716" y="126" width="104" height="48" rx="12" fill="#0e1016" stroke="#fbbf24" stroke-opacity="0.6"/><circle cx="738" cy="150" r="5.5" fill="#fbbf24"/><text x="774" y="148" fill="#edeff3" font-size="12" text-anchor="middle">Reviewer</text><text x="774" y="163" fill="#6a7180" font-size="9" text-anchor="middle">verify</text></g>
+            <g><rect x="864" y="120" width="116" height="60" rx="14" fill="#12121e" stroke="#f472b6" stroke-opacity="0.6"/><circle cx="886" cy="150" r="6" fill="#f472b6"/><text x="928" y="146" fill="#edeff3" font-size="12.5" text-anchor="middle">Deployer</text><text x="928" y="163" fill="#6a7180" font-size="9" text-anchor="middle">ship ✓</text></g>
+          </g>
+          <text x="690" y="252" fill="#fbbf24" fill-opacity="0.75" font-family="'JetBrains Mono', monospace" font-size="10" text-anchor="middle">on&#160;fail</text>
+        </svg>
+
+        <div class="topo-legend">
+          <span><i style="background:#b9b2ff"></i> Orchestrator</span>
+          <span><i style="background:#8b7bff"></i> Planner</span>
+          <span><i style="background:#22d3ee"></i> Researcher</span>
+          <span><i style="background:#34d399"></i> Coder</span>
+          <span><i style="background:#fbbf24"></i> Reviewer</span>
+          <span><i style="background:#fbbf24;opacity:0.5"></i> Loop-back on failure</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= HOW IT WORKS ================= -->
+  <section class="sec" id="docs" style="padding-top:24px;">
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <span class="eyebrow">From zero to orchestrated</span>
+        <h2>Define agents. Draw the handoffs. Ship.</h2>
+      </div>
+      <div class="steps">
+        <div class="step" data-reveal>
+          <div class="k">01 — Define</div>
+          <h3>Describe each agent</h3>
+          <p>Give every agent a role, a model, and the tools it can use. Keep them small and specialized.</p>
+          <pre><span class="cm"># agents.yaml</span>
+<span class="kw">planner</span>:
+  model: <span class="st">claude</span>
+  tools: [<span class="st">plan</span>]
+<span class="kw">coder</span>:
+  model: <span class="st">gpt</span>
+  tools: [<span class="st">repo</span>, <span class="st">shell</span>]</pre>
+        </div>
+        <div class="step" data-reveal>
+          <div class="k">02 — Connect</div>
+          <h3>Wire the handoffs</h3>
+          <p>Draw who delegates to whom. Add branches, merges, loops, and human-approval gates as needed.</p>
+          <pre><span class="cm"># graph.flow</span>
+planner <span class="kw">-></span> researcher
+researcher <span class="kw">-></span> coder
+coder <span class="kw">-></span> reviewer
+reviewer <span class="kw">-></span> deployer
+reviewer <span class="kw">-.fail.-></span> coder</pre>
+        </div>
+        <div class="step" data-reveal>
+          <div class="k">03 — Run</div>
+          <h3>Kick off a task</h3>
+          <p>Send a goal. Agents pick it up, hand off, and drive it to done — while you watch every step live.</p>
+          <pre><span class="cm">$ synthos run \</span>
+  <span class="st">"ship onboarding flow"</span>
+
+<span class="kw">✓</span> planner   decomposed
+<span class="kw">✓</span> researcher 4 sources
+<span class="kw">✓</span> coder     PR #482
+<span class="kw">→</span> reviewer  reviewing…</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PRICING ================= -->
+  <section class="sec" id="pricing" style="padding-top:24px;">
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <span class="eyebrow">Pricing</span>
+        <h2>Start free. Scale when your agents do.</h2>
+        <p>Every plan includes the visual orchestrator, live handoff graph, and full run tracing.</p>
+      </div>
+      <div class="price">
+        <div class="ptier" data-reveal>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span class="pn">Hobby</span>
+          </div>
+          <div class="amt">$0<small> /mo</small></div>
+          <div class="pd">For solo builders and side projects.</div>
+          <ul>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>Up to 3 agents per graph</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>1,000 handoffs / month</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>7-day run history</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>Community support</li>
+          </ul>
+          <a href="/signup" class="btn btn-ghost">Get started</a>
+        </div>
+
+        <div class="ptier feat" data-reveal>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span class="pn">Team</span>
+            <span class="badge">Most popular</span>
+          </div>
+          <div class="amt">$49<small> /mo</small></div>
+          <div class="pd">For teams running agents in production.</div>
+          <ul>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>Unlimited agents per graph</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>100,000 handoffs / month</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>Guardrails, budgets &amp; approvals</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>90-day tracing + replay</li>
+          </ul>
+          <a href="/signup" class="btn btn-primary">Start free trial →</a>
+        </div>
+
+        <div class="ptier" data-reveal>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span class="pn">Enterprise</span>
+          </div>
+          <div class="amt">Custom</div>
+          <div class="pd">For scale, compliance, and self-hosting.</div>
+          <ul>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>VPC &amp; self-hosted deploy</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>SSO, SOC 2 &amp; audit logs</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>Dedicated throughput</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>Solutions engineer</li>
+          </ul>
+          <a href="#" class="btn btn-ghost">Contact sales</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CTA ================= -->
+  <section class="sec" style="padding-top:24px;">
+    <div class="wrap">
+      <div class="cta" data-reveal>
+        <h2>Give your agents a <span class="gradient-text">team to hand off to.</span></h2>
+        <p>Spin up your first orchestration graph in minutes. Watch the handoffs happen live.</p>
+        <div class="hero-actions" style="justify-content:center">
+          <a href="/signup" class="btn btn-primary">Start building free →</a>
+          <a href="#docs" class="btn btn-ghost">Read the docs</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="ft">
+    <div class="wrap">
+      <div class="ft-grid">
+        <div>
+          <a class="brand" href="/synthos" style="margin-bottom:14px">
+            <svg class="mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+              <circle cx="16" cy="16" r="4.4" fill="url(#mg)"/>
+              <circle cx="6" cy="7" r="2.7" fill="url(#mg)"/><circle cx="26" cy="7" r="2.7" fill="url(#mg)"/>
+              <circle cx="6" cy="25" r="2.7" fill="url(#mg)"/><circle cx="26" cy="25" r="2.7" fill="url(#mg)"/>
+              <g stroke="url(#mg)" stroke-width="1.5" opacity="0.85"><line x1="16" y1="16" x2="6" y2="7"/><line x1="16" y1="16" x2="26" y2="7"/><line x1="16" y1="16" x2="6" y2="25"/><line x1="16" y1="16" x2="26" y2="25"/></g>
+            </svg>
+            Synthos
+          </a>
+          <p style="color:var(--muted);font-size:14px;max-width:280px;line-height:1.6;margin:14px 0 0">
+            The orchestration layer for AI agents that hand off like a team.
+          </p>
+        </div>
+        <div>
+          <h4>Product</h4>
+          <ul>
+            <li><a href="#platform">Platform</a></li>
+            <li><a href="#handoff">Handoffs</a></li>
+            <li><a href="#topology">Architecture</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Developers</h4>
+          <ul>
+            <li><a href="#docs">Docs</a></li>
+            <li><a href="#">API reference</a></li>
+            <li><a href="#">Agent templates</a></li>
+            <li><a href="#">Changelog</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <ul>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Security</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="ft-bottom">
+        <span>© 2026 Synthos. All rights reserved.</span>
+        <span>Model-agnostic · SOC 2 Type II · Built for agents</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/synthos.js" defer></script>
+</body>
+</html>

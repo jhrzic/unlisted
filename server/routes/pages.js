@@ -25,4 +25,8 @@ router.get("/pricing", (req, res) => {
   res.render("pricing-partial", { standalone: true });
 });
 
+router.get("/synthos", (req, res) => {
+  res.render("synthos");
+});
+
 module.exports = router;
