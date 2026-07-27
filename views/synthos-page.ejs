@@ -43,6 +43,7 @@
     </div>
     <div id="cnav-menu" class="m">
       <% nav.forEach(function(n){ %><a href="<%= n[1] %>"><%= n[0] %></a><% }); %>
+      <a href="/synthos/contact" class="btn btn-primary" style="margin-top:12px;justify-content:center;">Talk to our team</a>
     </div>
   </header>
 
@@ -114,24 +115,73 @@
     </div>
   </section>
   <% } else if (page.slug === "contact") { %>
+  <% var form = (typeof form !== "undefined") ? form : null;
+     var vals = (form && form.values) ? form.values : {};
+     var errs = (form && form.errors) ? form.errors : {}; %>
   <section class="psec">
     <div class="wrap">
+      <% if (form && form.success) { %>
+        <div class="coming-soon">
+          <span class="cs-badge" style="border-color:rgba(95,224,139,0.4);color:var(--green);"><i style="background:var(--green);box-shadow:0 0 10px var(--green);"></i> Message received</span>
+          <h2>Thanks — we'll be in touch.</h2>
+          <% if (form.delivered) { %>
+            <p>Your message is on its way to the team. Expect a reply within two business days.</p>
+          <% } else { %>
+            <p>We've logged your note.<% if (form.note) { %> <span style="color:var(--faint)">(<%= form.note %>)</span><% } %></p>
+          <% } %>
+          <a href="/synthos/components" class="btn btn-ghost">Back to platform</a>
+        </div>
+      <% } else { %>
       <div class="contact-grid">
         <div class="contact-card">
           <h3>Tell us what you want agents to own.</h3>
-          <p>Share the workflow you'd hand to an agentic system — a process, a team, a bottleneck — and we'll show you how it maps onto the SynthOS runtime.</p>
-          <p style="color:var(--faint);font-size:13px;margin-top:18px;">Placeholder — wire this to your contact form or CRM. Replace the details on the right with your real ones.</p>
-          <div class="pactions" style="margin-top:22px;">
-            <a href="mailto:hello@synthos.example" class="btn btn-primary">Email the team →</a>
+          <p style="margin-bottom:22px;">Share the workflow you'd hand to an agentic system — a process, a team, a bottleneck — and we'll show you how it maps onto the SynthOS runtime.</p>
+          <form method="POST" action="/synthos/contact" novalidate>
+            <div class="fields">
+              <div class="field">
+                <label for="c-name">Name</label>
+                <input id="c-name" name="name" type="text" autocomplete="name" value="<%= vals.name || '' %>" class="<%= errs.name ? 'has-error' : '' %>" placeholder="Your name" />
+                <% if (errs.name) { %><span class="field-err"><%= errs.name %></span><% } %>
+              </div>
+              <div class="field">
+                <label for="c-email">Work email</label>
+                <input id="c-email" name="email" type="email" autocomplete="email" value="<%= vals.email || '' %>" class="<%= errs.email ? 'has-error' : '' %>" placeholder="you@company.com" />
+                <% if (errs.email) { %><span class="field-err"><%= errs.email %></span><% } %>
+              </div>
+              <div class="field">
+                <label for="c-company">Company <span class="opt">(optional)</span></label>
+                <input id="c-company" name="company" type="text" autocomplete="organization" value="<%= vals.company || '' %>" placeholder="Company" />
+              </div>
+              <div class="field">
+                <label for="c-message">What do you want agents to own?</label>
+                <textarea id="c-message" name="message" rows="4" class="<%= errs.message ? 'has-error' : '' %>" placeholder="Describe the workflow, team, or bottleneck…"><%= vals.message || '' %></textarea>
+                <% if (errs.message) { %><span class="field-err"><%= errs.message %></span><% } %>
+              </div>
+              <!-- honeypot: hidden from humans -->
+              <div class="hp" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off" /></label></div>
+              <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">Send message →</button>
+            </div>
+          </form>
+        </div>
+        <div>
+          <div class="contact-card" style="margin-bottom:18px;">
+            <h3 style="font-size:1.05rem;">Other ways to reach us</h3>
+            <div class="contact-row"><span class="k">General</span><span class="v">hello@synthos.example</span></div>
+            <div class="contact-row"><span class="k">Sales</span><span class="v">sales@synthos.example</span></div>
+            <div class="contact-row"><span class="k">Partnerships</span><span class="v">partners@synthos.example</span></div>
+            <div class="contact-row"><span class="k">Where</span><span class="v">Remote-first</span></div>
+          </div>
+          <div class="contact-card">
+            <h3 style="font-size:1.05rem;">What happens next</h3>
+            <ol class="next-list">
+              <li>We read your note and map it to the runtime.</li>
+              <li>A short call to scope the first agent workflow.</li>
+              <li>A pilot on your real data, with live traces.</li>
+            </ol>
           </div>
         </div>
-        <div class="contact-card">
-          <div class="contact-row"><span class="k">General</span><span class="v">hello@synthos.example</span></div>
-          <div class="contact-row"><span class="k">Sales</span><span class="v">sales@synthos.example</span></div>
-          <div class="contact-row"><span class="k">Partnerships</span><span class="v">partners@synthos.example</span></div>
-          <div class="contact-row"><span class="k">Where</span><span class="v">Remote-first</span></div>
-        </div>
       </div>
+      <% } %>
     </div>
   </section>
   <% } %>
