@@ -55,12 +55,18 @@ const synthosPages = {
     title: "Partners",
     tagline: "Building the agentic stack together, across technology, delivery, and design.",
   },
-  contact: {
-    kicker: "Contact",
-    title: "Contact",
-    tagline: "Talk to the team building SynthOS.",
-  },
 };
+
+const CONTACT_TOPICS = ["General", "Partnership", "Enterprise Sales", "Product Support"];
+
+router.get("/synthos/contact", (req, res) => {
+  const topic = CONTACT_TOPICS.includes(req.query.topic) ? req.query.topic : "General";
+  res.render("synthos-contact", {
+    page: { slug: "contact", title: "Contact" },
+    topics: CONTACT_TOPICS,
+    form: { values: { topic } },
+  });
+});
 
 router.get("/synthos/:page", (req, res, next) => {
   const data = synthosPages[req.params.page];
@@ -69,15 +75,16 @@ router.get("/synthos/:page", (req, res, next) => {
 });
 
 router.post("/synthos/contact", contactLimiter, async (req, res) => {
-  const page = { slug: "contact", ...synthosPages.contact };
+  const page = { slug: "contact", title: "Contact" };
   const name = (req.body.name || "").trim();
   const email = (req.body.email || "").trim();
   const company = (req.body.company || "").trim();
   const message = (req.body.message || "").trim();
+  const topic = CONTACT_TOPICS.includes(req.body.topic) ? req.body.topic : "General";
 
   // Honeypot: real users leave this hidden field empty. Silently "succeed".
   if ((req.body.website || "").trim()) {
-    return res.render("synthos-page", { page, form: { success: true, delivered: true } });
+    return res.render("synthos-contact", { page, topics: CONTACT_TOPICS, form: { success: true, delivered: true } });
   }
 
   const errors = {};
@@ -86,16 +93,17 @@ router.post("/synthos/contact", contactLimiter, async (req, res) => {
   if (message.length < 10) errors.message = "A little more detail helps (10+ characters).";
 
   if (Object.keys(errors).length) {
-    return res.status(400).render("synthos-page", {
+    return res.status(400).render("synthos-contact", {
       page,
-      form: { errors, values: { name, email, company, message } },
+      topics: CONTACT_TOPICS,
+      form: { errors, values: { name, email, company, message, topic } },
     });
   }
 
   let delivered = false;
   let note = null;
   try {
-    const result = await sendContactMessage({ name, email, company, message });
+    const result = await sendContactMessage({ name, email, company, message, topic });
     delivered = result.sent;
     if (!result.sent) note = result.reason;
   } catch (err) {
@@ -103,7 +111,7 @@ router.post("/synthos/contact", contactLimiter, async (req, res) => {
     note = "Something went wrong sending your message. Please email us directly.";
   }
 
-  res.render("synthos-page", { page, form: { success: true, delivered, note } });
+  res.render("synthos-contact", { page, topics: CONTACT_TOPICS, form: { success: true, delivered, note } });
 });
 
 module.exports = router;

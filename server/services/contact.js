@@ -22,7 +22,7 @@ function buildTransport() {
  * Never throws for configuration problems — only a real transport error
  * would reject, which the caller handles.
  */
-async function sendContactMessage({ name, email, company, message }) {
+async function sendContactMessage({ name, email, company, message, topic }) {
   const transport = buildTransport();
   if (!transport) {
     return {
@@ -46,6 +46,7 @@ async function sendContactMessage({ name, email, company, message }) {
     `Name:    ${name}`,
     `Email:   ${email}`,
     `Company: ${company || "—"}`,
+    `Topic:   ${topic || "General"}`,
     ``,
     `Message:`,
     message,
@@ -55,7 +56,7 @@ async function sendContactMessage({ name, email, company, message }) {
     from: process.env.FROM_EMAIL || to,
     to,
     replyTo: email,
-    subject: `New SynthOS inquiry — ${name}`,
+    subject: `New SynthOS inquiry (${topic || "General"}) — ${name}`,
     text,
   });
 
