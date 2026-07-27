@@ -114,4 +114,26 @@
   } else {
     rev.forEach(function (el) { el.classList.add("is-in"); });
   }
+
+  /* Staggered reveal: children of [data-stagger] cascade in one after another */
+  var groups = document.querySelectorAll("[data-stagger]");
+  Array.prototype.forEach.call(groups, function (group) {
+    var items = group.querySelectorAll(".stack-item");
+    if (reduce || !("IntersectionObserver" in window)) {
+      Array.prototype.forEach.call(items, function (el) { el.classList.add("is-in"); });
+      return;
+    }
+    var step = parseInt(group.getAttribute("data-stagger-step") || "150", 10);
+    var so = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (e.isIntersecting) {
+          Array.prototype.forEach.call(items, function (el, i) {
+            setTimeout(function () { el.classList.add("is-in"); }, i * step);
+          });
+          so.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    so.observe(group);
+  });
 })();

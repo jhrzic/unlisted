@@ -172,6 +172,11 @@
 
     /* ============ STACK CARDS ============ */
     .stack { display: flex; flex-direction: column; gap: 20px; }
+    .stack-item { opacity: 0; transform: translateY(28px); transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1); }
+    .stack-item.is-in { opacity: 1; transform: none; }
+    .scard.sec-layer { border-color: rgba(47, 224, 200, 0.22); }
+    .diagram .radar-lbl { position: absolute; left: 14px; bottom: 12px; font-family: "Urbanist"; font-size: 11px; letter-spacing: 0.08em; color: var(--faint); }
+    .diagram .radar-lbl b { color: var(--green); font-weight: 600; }
     .scard { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: center; padding: 34px; border-radius: 22px; background: linear-gradient(180deg, rgba(15, 24, 34, 0.7), rgba(12, 19, 32, 0.7)); border: 1px solid var(--line); }
     .scard .num { font-family: "Epilogue"; font-weight: 800; font-size: 2.4rem; color: rgba(47, 224, 200, 0.25); line-height: 1; }
     .scard .cap { font-family: "Urbanist"; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--teal); margin: 6px 0 14px; }
@@ -374,10 +379,10 @@
         <span class="kicker">The Stack</span>
         <h2>Three layers. Built to converge.</h2>
       </div>
-      <div class="stack">
+      <div class="stack" data-stagger data-stagger-step="160">
 
         <!-- 01 AI Agents -->
-        <div class="scard" data-reveal>
+        <div class="scard stack-item">
           <div>
             <div class="num">01</div>
             <div class="cap">AI Agents</div>
@@ -405,7 +410,7 @@
         </div>
 
         <!-- 02 Agentic AI -->
-        <div class="scard" data-reveal>
+        <div class="scard stack-item">
           <div>
             <div class="num">02</div>
             <div class="cap">Agentic AI</div>
@@ -440,7 +445,7 @@
         </div>
 
         <!-- 03 Agentic OS (routing) -->
-        <div class="scard" data-reveal>
+        <div class="scard stack-item">
           <div>
             <div class="num">03</div>
             <div class="cap">Agentic OS</div>
