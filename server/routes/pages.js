@@ -33,4 +33,34 @@ router.get("/synthos/components", (req, res) => {
   res.render("synthos-components");
 });
 
+const synthosPages = {
+  roadmap: {
+    kicker: "The path to full convergence",
+    title: "Roadmap",
+    tagline:
+      "The path to full convergence — where SynthOS is headed, shipping intelligence as infrastructure one layer at a time.",
+  },
+  advisory: {
+    kicker: "Advisory",
+    title: "Advisory",
+    tagline: "The people who'll help you build the agentic enterprise. Coming soon.",
+  },
+  partners: {
+    kicker: "Partners",
+    title: "Partners",
+    tagline: "Building the agentic stack together, across technology, delivery, and design.",
+  },
+  contact: {
+    kicker: "Contact",
+    title: "Contact",
+    tagline: "Talk to the team building SynthOS.",
+  },
+};
+
+router.get("/synthos/:page", (req, res, next) => {
+  const data = synthosPages[req.params.page];
+  if (!data) return next();
+  res.render("synthos-page", { page: { slug: req.params.page, ...data } });
+});
+
 module.exports = router;

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SynthOS — <%= page.title %></title>
+  <meta name="description" content="<%= page.tagline %>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@500;600;700;800&family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/synthos-base.css" />
+</head>
+<body>
+  <% const nav = [
+    ["Platform","/synthos/components#platform"],
+    ["Stack","/synthos/components#stack"],
+    ["Roadmap","/synthos/roadmap"],
+    ["Advisory","/synthos/advisory"],
+    ["Partners","/synthos/partners"],
+    ["Contact","/synthos/contact"]
+  ]; %>
+  <header class="cnav">
+    <div class="wrap cnav-in">
+      <a class="brand" href="/synthos/components">
+        <svg class="mk" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <circle cx="16" cy="16" r="4" fill="#2fe0c8"/>
+          <g stroke="#2fe0c8" stroke-width="1.4" opacity="0.9">
+            <circle cx="16" cy="16" r="10" stroke-dasharray="3 4"/>
+            <circle cx="16" cy="6" r="2" fill="#2fe0c8" stroke="none"/>
+            <circle cx="25" cy="21" r="2" fill="#2fe0c8" stroke="none"/>
+            <circle cx="7" cy="21" r="2" fill="#2fe0c8" stroke="none"/>
+          </g>
+        </svg>
+        SynthOS
+      </a>
+      <nav class="cnav-links">
+        <% nav.forEach(function(n){ %><a href="<%= n[1] %>" class="<%= n[0].toLowerCase() === page.slug ? 'active' : '' %>"><%= n[0] %></a><% }); %>
+      </nav>
+      <a href="/synthos/contact" class="btn btn-primary" style="padding:9px 18px;font-size:14px;">Talk to our team</a>
+      <button id="cnav-toggle" aria-label="Menu" aria-expanded="false">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div id="cnav-menu" class="m">
+      <% nav.forEach(function(n){ %><a href="<%= n[1] %>"><%= n[0] %></a><% }); %>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="phero">
+    <div class="wrap">
+      <div class="halo" aria-hidden="true"></div>
+      <span class="kicker"><%= page.kicker %></span>
+      <h1><%= page.title %></h1>
+      <p><%= page.tagline %></p>
+      <div class="pactions">
+        <a href="/synthos/contact" class="btn btn-primary">Talk to the team →</a>
+        <a href="/synthos/components" class="btn btn-ghost">Back to platform</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- BODY -->
+  <% if (page.slug === "roadmap") { %>
+  <section class="psec">
+    <div class="wrap">
+      <div class="timeline">
+        <div class="tl-item done">
+          <div class="q">Now · Shipping</div>
+          <h3>Agent runtime &amp; live trace</h3>
+          <p>The reasoning loop, end-to-end observability, and the agent runtime are live in production — every plan, retrieval, and handoff is traceable.</p>
+          <span class="state">Live</span>
+        </div>
+        <div class="tl-item">
+          <div class="q">Next</div>
+          <h3>Guardrails &amp; policy, GA</h3>
+          <p>Budgets, tool permissions, and human-approval gates enforced across every agent handoff, with a full audit trail.</p>
+          <span class="state">In progress</span>
+        </div>
+        <div class="tl-item">
+          <div class="q">Later</div>
+          <h3>Model gateway cost controls</h3>
+          <p>Route each call to the right model at the right price, with per-team caps and real-time spend visibility.</p>
+          <span class="state">Planned</span>
+        </div>
+        <div class="tl-item">
+          <div class="q">Later</div>
+          <h3>Agent marketplace</h3>
+          <p>Install specialist agents from a shared catalog and drop them into any orchestration graph in a click.</p>
+          <span class="state">Planned</span>
+        </div>
+      </div>
+    </div>
+  </section>
+  <% } else if (page.slug === "advisory") { %>
+  <section class="psec">
+    <div class="wrap">
+      <div class="coming-soon">
+        <span class="cs-badge"><i></i> Coming soon</span>
+        <h2>Our advisory network is taking shape.</h2>
+        <p>We're assembling operators and technologists who'll help enterprises build the agentic stack. Details are on the way.</p>
+        <a href="/synthos/contact" class="btn btn-ghost">Get notified →</a>
+      </div>
+    </div>
+  </section>
+  <% } else if (page.slug === "partners") { %>
+  <section class="psec">
+    <div class="wrap">
+      <div class="pgrid">
+        <div class="pcard"><div class="pc-k">Technology</div><h3>Technology partners</h3><p>Model providers, data platforms, and tooling that plug directly into the SynthOS runtime.</p><span class="tag">Integrate</span></div>
+        <div class="pcard"><div class="pc-k">Delivery</div><h3>Delivery partners</h3><p>Consultancies and integrators shipping agentic systems on SynthOS for their clients.</p><span class="tag">Build</span></div>
+        <div class="pcard"><div class="pc-k">Design</div><h3>Design partners</h3><p>Early enterprises shaping the roadmap with real, high-stakes production workloads.</p><span class="tag">Co-develop</span></div>
+      </div>
+    </div>
+  </section>
+  <% } else if (page.slug === "contact") { %>
+  <section class="psec">
+    <div class="wrap">
+      <div class="contact-grid">
+        <div class="contact-card">
+          <h3>Tell us what you want agents to own.</h3>
+          <p>Share the workflow you'd hand to an agentic system — a process, a team, a bottleneck — and we'll show you how it maps onto the SynthOS runtime.</p>
+          <p style="color:var(--faint);font-size:13px;margin-top:18px;">Placeholder — wire this to your contact form or CRM. Replace the details on the right with your real ones.</p>
+          <div class="pactions" style="margin-top:22px;">
+            <a href="mailto:hello@synthos.example" class="btn btn-primary">Email the team →</a>
+          </div>
+        </div>
+        <div class="contact-card">
+          <div class="contact-row"><span class="k">General</span><span class="v">hello@synthos.example</span></div>
+          <div class="contact-row"><span class="k">Sales</span><span class="v">sales@synthos.example</span></div>
+          <div class="contact-row"><span class="k">Partnerships</span><span class="v">partners@synthos.example</span></div>
+          <div class="contact-row"><span class="k">Where</span><span class="v">Remote-first</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <% } %>
+
+  <footer class="cft">
+    <div class="wrap cft-in">
+      <span>© 2026 SynthOS · <%= page.title %></span>
+      <span>Three layers. One intelligence.</span>
+    </div>
+  </footer>
+
+  <script src="/js/synthos-components.js" defer></script>
+</body>
+</html>
