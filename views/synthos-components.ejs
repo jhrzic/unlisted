@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SynthOS — Component Set</title>
+  <meta name="description" content="SynthOS agentic-OS UI component set: autonomous-loop hero, live reasoning trace, layer diagrams, and the agent runtime grid." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@500;600;700;800&family=Urbanist:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #070d1c;
+      --bg-2: #0a1120;
+      --panel: #0c1320;
+      --panel-2: #0f1822;
+      --ink: #eff2f5;
+      --muted: #8795a6;
+      --faint: #55627a;
+      --teal: #2fe0c8;
+      --teal-soft: #7af0e0;
+      --green: #5fe08b;
+      --violet: #a78bfa;
+      --blue: #6aa6f5;
+      --pink: #f19fd0;
+      --amber: #e5c15a;
+      --line: rgba(255, 255, 255, 0.09);
+      --line-2: rgba(255, 255, 255, 0.16);
+      --glow: rgba(47, 224, 200, 0.55);
+      --maxw: 1200px;
+      --mono: "Urbanist", ui-monospace, monospace;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Urbanist", system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: "";
+      position: fixed; inset: 0; z-index: -2;
+      background:
+        radial-gradient(50% 40% at 20% 0%, rgba(47, 224, 200, 0.10), transparent 60%),
+        radial-gradient(45% 45% at 85% 12%, rgba(47, 224, 200, 0.06), transparent 60%);
+    }
+    a { color: inherit; text-decoration: none; }
+    h1, h2, h3, h4 { font-family: "Epilogue", sans-serif; font-weight: 700; letter-spacing: -0.02em; margin: 0; }
+    ::selection { background: rgba(47, 224, 200, 0.3); }
+    .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+
+    .kicker {
+      font-family: "Urbanist";
+      font-size: 12px; font-weight: 600;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--teal); display: inline-flex; align-items: center; gap: 10px;
+    }
+    .kicker::before { content: ""; width: 22px; height: 1px; background: var(--teal); opacity: 0.7; }
+    .teal { color: var(--teal); }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: "Urbanist"; font-weight: 600; font-size: 15px;
+      padding: 12px 24px; border-radius: 999px; border: 1px solid transparent; cursor: pointer;
+      transition: transform 0.16s, box-shadow 0.2s, background 0.2s, border-color 0.2s;
+    }
+    .btn-primary { background: var(--teal); color: #04211d; box-shadow: 0 12px 34px -12px var(--glow); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 18px 44px -14px var(--glow); }
+    .btn-ghost { border-color: var(--line-2); color: var(--ink); }
+    .btn-ghost:hover { border-color: var(--teal); background: rgba(47, 224, 200, 0.06); }
+
+    /* nav */
+    header.cnav { position: sticky; top: 0; z-index: 60; background: rgba(7, 13, 28, 0.72); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+    .cnav-in { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-family: "Epilogue"; font-weight: 800; font-size: 19px; }
+    .brand .mk { width: 26px; height: 26px; }
+    .cnav-links { display: flex; gap: 28px; }
+    .cnav-links a { color: var(--muted); font-size: 14px; font-weight: 500; transition: color 0.18s; }
+    .cnav-links a:hover { color: var(--ink); }
+    #cnav-toggle { display: none; background: none; border: 0; color: var(--ink); padding: 8px; cursor: pointer; }
+    #cnav-menu.m { display: none; }
+
+    /* ============ HERO — autonomous loop ============ */
+    .hero { padding: 60px 0 70px; }
+    .hero-in { display: grid; grid-template-columns: 0.95fr 1.05fr; gap: 40px; align-items: center; }
+
+    .stage { position: relative; width: 100%; max-width: 480px; aspect-ratio: 1 / 1; margin: 0 auto; }
+    .stage .rings { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .core {
+      position: absolute; left: 50%; top: 50%; width: 92px; height: 92px; transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 50%, #cffff6 0%, var(--teal) 30%, rgba(47, 224, 200, 0.15) 62%, transparent 72%);
+      box-shadow: 0 0 60px 12px var(--glow);
+    }
+    .core::after {
+      content: ""; position: absolute; inset: 0; border-radius: 50%;
+      box-shadow: 0 0 0 1px rgba(47, 224, 200, 0.4);
+      animation: corePulse 3.2s ease-out infinite;
+    }
+    @keyframes corePulse { 0% { transform: scale(0.6); opacity: 0.9; } 100% { transform: scale(2.1); opacity: 0; } }
+
+    .orbit { position: absolute; inset: 0; animation: spin 30s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .sat { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+    .sat-in {
+      display: inline-flex; align-items: center; gap: 8px; padding: 7px 13px 7px 8px;
+      border-radius: 999px; background: rgba(12, 19, 32, 0.9); border: 1px solid var(--line-2);
+      backdrop-filter: blur(4px); white-space: nowrap; font-size: 13px; font-weight: 600;
+      animation: spin 30s linear infinite reverse;
+      box-shadow: 0 8px 22px -12px rgba(0, 0, 0, 0.9);
+    }
+    .sat-in i { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 10px var(--teal); }
+    /* 5 satellites around r≈182px (in a 480 stage → 38%) */
+    .sat.s1 { margin-left: 0; margin-top: -182px; }
+    .sat.s2 { margin-left: 173px; margin-top: -56px; }
+    .sat.s3 { margin-left: 107px; margin-top: 147px; }
+    .sat.s4 { margin-left: -107px; margin-top: 147px; }
+    .sat.s5 { margin-left: -173px; margin-top: -56px; }
+
+    .hero-eye { display: flex; gap: 22px; align-items: center; margin-bottom: 20px; }
+    .hero-eye .tag { font-family: "Urbanist"; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--faint); display: inline-flex; align-items: center; gap: 8px; }
+    .hero-eye .tag b { color: var(--teal); font-weight: 600; }
+    h1.hero-h { font-size: clamp(2.6rem, 6vw, 4.6rem); line-height: 0.98; }
+    h1.hero-h .n { color: var(--faint); font-weight: 600; margin-right: 14px; }
+    .hero-p { color: var(--muted); font-size: 1.1rem; max-width: 440px; margin: 22px 0 28px; line-height: 1.55; }
+    .hero-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .hero-actions .watch { display: inline-flex; align-items: center; gap: 10px; color: var(--muted); font-size: 14px; font-weight: 600; }
+    .hero-actions .watch .pl { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line-2); display: grid; place-items: center; }
+    .hero-tabs { display: flex; gap: 26px; margin-top: 34px; padding-top: 20px; border-top: 1px solid var(--line); }
+    .hero-tabs a { font-size: 13px; color: var(--muted); display: flex; align-items: baseline; gap: 8px; }
+    .hero-tabs a .c { font-family: "Urbanist"; font-size: 10px; color: var(--faint); letter-spacing: 0.1em; }
+
+    /* section scaffold */
+    section.sec { padding: 84px 0; border-top: 1px solid var(--line); }
+    .sec-head { max-width: 640px; margin-bottom: 44px; }
+    .sec-head h2 { font-size: clamp(1.8rem, 3.6vw, 2.8rem); line-height: 1.05; margin-top: 16px; }
+    .sec-head p { color: var(--muted); font-size: 1.05rem; margin-top: 14px; line-height: 1.6; }
+    [data-reveal] { opacity: 0; transform: translateY(20px); transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1); }
+    [data-reveal].is-in { opacity: 1; transform: none; }
+
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 20px; }
+
+    /* ============ LIVE TRACE ============ */
+    .trace { display: grid; grid-template-columns: 1.25fr 0.75fr; gap: 22px; }
+    .term { border: 1px solid var(--line); border-radius: 16px; background: #05090f; overflow: hidden; display: flex; flex-direction: column; }
+    .term-bar { display: flex; align-items: center; gap: 8px; padding: 12px 15px; border-bottom: 1px solid var(--line); }
+    .term-bar i { width: 10px; height: 10px; border-radius: 50%; }
+    .term-bar .a { background: #ff5f56; } .term-bar .b { background: #ffbd2e; } .term-bar .c { background: #27c93f; }
+    .term-bar span { margin-left: 8px; font-family: "Urbanist"; font-size: 12px; color: var(--faint); }
+    #trace-term-body { padding: 16px 18px; font-family: "Urbanist"; font-size: 13px; line-height: 1.85; color: var(--teal-soft); min-height: 250px; }
+    .term-line { opacity: 0.55; }
+    .term-line--cur { opacity: 1; color: var(--teal); }
+    .term-line--cur::after { content: "▋"; animation: blink 1s step-end infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    .stepper { border: 1px solid var(--line); border-radius: 16px; background: var(--panel); padding: 20px 22px; }
+    .stepper .st-h { font-family: "Urbanist"; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--faint); margin-bottom: 16px; }
+    .trace-step { display: flex; align-items: center; gap: 13px; padding: 9px 0; position: relative; }
+    .trace-step + .trace-step::before { content: ""; position: absolute; left: 11px; top: -13px; height: 13px; width: 1px; background: var(--line-2); }
+    .trace-step .dot { width: 23px; height: 23px; border-radius: 50%; border: 1px solid var(--line-2); display: grid; place-items: center; flex: none; font-size: 11px; color: var(--faint); transition: all 0.3s; }
+    .trace-step .tx b { display: block; font-size: 14px; font-weight: 600; }
+    .trace-step .tx span { font-size: 12px; color: var(--faint); }
+    .trace-step.is-done .dot { background: var(--teal); border-color: var(--teal); color: #04211d; }
+    .trace-step.is-running .dot { border-color: var(--teal); color: var(--teal); box-shadow: 0 0 0 4px rgba(47, 224, 200, 0.14); animation: pulseDot 1.4s ease-in-out infinite; }
+    .trace-step.is-running .tx b { color: var(--teal); }
+    @keyframes pulseDot { 50% { box-shadow: 0 0 0 7px rgba(47, 224, 200, 0.05); } }
+    .trace-step .badge { margin-left: auto; font-family: "Urbanist"; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+    .trace-step.is-running .badge { color: var(--teal); }
+
+    /* ============ STACK CARDS ============ */
+    .stack { display: flex; flex-direction: column; gap: 20px; }
+    .scard { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: center; padding: 34px; border-radius: 22px; background: linear-gradient(180deg, rgba(15, 24, 34, 0.7), rgba(12, 19, 32, 0.7)); border: 1px solid var(--line); }
+    .scard .num { font-family: "Epilogue"; font-weight: 800; font-size: 2.4rem; color: rgba(47, 224, 200, 0.25); line-height: 1; }
+    .scard .cap { font-family: "Urbanist"; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--teal); margin: 6px 0 14px; }
+    .scard h3 { font-size: 1.5rem; margin-bottom: 12px; }
+    .scard p { color: var(--muted); font-size: 15px; line-height: 1.6; }
+    .diagram { position: relative; aspect-ratio: 16 / 11; border-radius: 16px; background: radial-gradient(80% 90% at 50% 50%, rgba(47, 224, 200, 0.06), transparent 70%), #060b16; border: 1px solid var(--line); overflow: hidden; }
+    .diagram .dlbl { position: absolute; left: 14px; bottom: 12px; font-family: "Urbanist"; font-size: 11px; letter-spacing: 0.08em; color: var(--faint); }
+    .diagram .dlbl b { color: var(--teal); font-weight: 600; }
+
+    /* swarm ring (card 1) */
+    .swarm { position: absolute; inset: 0; }
+    .swarm .sc { position: absolute; left: 50%; top: 50%; width: 12px; height: 12px; margin: -6px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 12px var(--teal); }
+    .swarm .ring { position: absolute; left: 50%; top: 50%; width: 60%; aspect-ratio: 1; transform: translate(-50%, -50%); animation: spin 22s linear infinite; }
+    .swarm .ring b { position: absolute; left: 50%; top: 50%; width: 9px; height: 9px; margin: -4.5px; border-radius: 50%; background: var(--teal-soft); box-shadow: 0 0 8px var(--teal); opacity: 0.85; }
+
+    /* orchestrator hub (card 2) */
+    .hub svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+    /* routing diagram (card 3) — stage with HTML nodes over SVG connectors */
+    .routing { position: relative; aspect-ratio: 1 / 1.16; border-radius: 16px; background: radial-gradient(60% 40% at 50% 54%, rgba(47, 224, 200, 0.09), transparent 65%), #060b16; border: 1px solid var(--line); overflow: hidden; }
+    .routing .rc { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .rnode {
+      position: absolute; transform: translate(-50%, -50%);
+      display: inline-flex; align-items: center; gap: 7px; padding: 5px 11px 5px 5px;
+      border-radius: 999px; background: rgba(9, 14, 24, 0.94); border: 1px solid var(--line-2);
+      white-space: nowrap; font-size: 11px; font-weight: 600; color: var(--ink);
+    }
+    .rnode .ric { width: 22px; height: 22px; border-radius: 50%; flex: none; display: grid; place-items: center; border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); color: var(--c); background: color-mix(in srgb, var(--c) 14%, transparent); }
+    .rnode .ric svg { width: 12px; height: 12px; }
+    .rnode .rsub { color: var(--faint); font-weight: 500; font-size: 11px; }
+    .rnode.glow { border-color: color-mix(in srgb, var(--c) 55%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--c) 30%, transparent), 0 0 26px -6px color-mix(in srgb, var(--c) 60%, transparent); }
+    .rnode.big { padding: 16px 26px; border-radius: 44px; font-size: 15px; }
+    .rnode.big .ric { width: 30px; height: 30px; }
+    .rnode.center { box-shadow: 0 0 0 1px rgba(47, 224, 200, 0.4), 0 0 60px -6px var(--glow); background: rgba(6, 16, 22, 0.96); }
+    .r-teal { --c: var(--teal); } .r-green { --c: var(--green); } .r-violet { --c: var(--violet); }
+    .r-blue { --c: var(--blue); } .r-pink { --c: var(--pink); } .r-amber { --c: var(--amber); }
+    .routing .rstatus { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 9px; padding: 6px 16px; border-radius: 999px; border: 1px solid var(--line); font-family: "Urbanist"; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); background: rgba(6, 11, 22, 0.8); }
+    .routing .rstatus i { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 8px var(--teal); }
+
+    /* ============ QUOTE ============ */
+    .quote-sec { text-align: left; }
+    .pullquote { font-family: "Epilogue"; font-weight: 700; font-size: clamp(1.6rem, 3.4vw, 2.7rem); line-height: 1.25; letter-spacing: -0.02em; max-width: 960px; }
+    .pullquote .q-word { display: inline-block; opacity: 0; transform: translateY(14px); transition: opacity 0.5s ease, transform 0.5s ease; color: var(--muted); }
+    .pullquote.q-in .q-word { opacity: 1; transform: none; color: var(--ink); }
+    .pullquote .lead { color: var(--teal); }
+    .quote-meta { display: flex; align-items: center; gap: 12px; margin-top: 26px; font-family: "Urbanist"; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); }
+    .quote-meta i { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 10px var(--teal); }
+
+    /* ============ AGENT GRID ============ */
+    .agrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .acard { border: 1px solid var(--line); border-radius: 16px; background: var(--panel); padding: 20px; transition: border-color 0.22s, transform 0.22s, background 0.22s; }
+    .acard:hover { border-color: var(--line-2); transform: translateY(-3px); background: var(--panel-2); }
+    .acard .code { font-family: "Urbanist"; font-size: 11px; letter-spacing: 0.12em; color: var(--faint); display: flex; justify-content: space-between; align-items: center; }
+    .acard .code .st { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); box-shadow: 0 0 8px var(--teal); }
+    .acard h4 { font-size: 1.3rem; margin: 16px 0 4px; }
+    .acard .role { color: var(--teal); font-size: 12.5px; font-weight: 600; }
+    .acard .desc { color: var(--muted); font-size: 13.5px; line-height: 1.55; margin: 12px 0 16px; min-height: 58px; }
+    .acard .foot { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); padding-top: 13px; }
+    .acard .tag { font-family: "Urbanist"; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); border: 1px solid var(--line); border-radius: 999px; padding: 3px 9px; }
+    .acard .ver { color: var(--muted); font-size: 12px; display: flex; align-items: center; gap: 6px; }
+
+    /* CTA + footer */
+    .cta { text-align: center; border: 1px solid var(--line); border-radius: 24px; padding: 60px 24px; background: radial-gradient(70% 130% at 50% 0%, rgba(47, 224, 200, 0.12), transparent 60%), var(--panel); }
+    .cta h2 { font-size: clamp(1.9rem, 4vw, 3rem); }
+    .cta p { color: var(--muted); margin: 16px auto 28px; max-width: 440px; }
+    footer.cft { border-top: 1px solid var(--line); padding: 40px 0; color: var(--faint); font-size: 13px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+
+    @media (max-width: 940px) {
+      .hero-in, .trace { grid-template-columns: 1fr; }
+      .hero-in { gap: 48px; }
+      .scard { grid-template-columns: 1fr; gap: 22px; }
+      .scard .diagram, .scard .routing { order: -1; }
+      .agrid { grid-template-columns: repeat(2, 1fr); }
+      .cnav-links { display: none; }
+      #cnav-toggle { display: block; }
+      #cnav-menu.m.is-open { display: flex; flex-direction: column; gap: 4px; position: absolute; top: 64px; left: 0; right: 0; background: rgba(7, 13, 28, 0.98); border-bottom: 1px solid var(--line); padding: 14px 24px 20px; }
+      #cnav-menu.m.is-open a { padding: 11px 0; color: var(--muted); border-bottom: 1px solid var(--line); }
+    }
+    @media (max-width: 560px) {
+      .agrid { grid-template-columns: 1fr; }
+      section.sec { padding: 60px 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition-duration: 0.001ms !important; }
+      [data-reveal] { opacity: 1 !important; transform: none !important; }
+      .pullquote .q-word { opacity: 1 !important; transform: none !important; color: var(--ink) !important; }
+    }
+    :focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; }
+  </style>
+</head>
+<body>
+  <%
+    // shared inline icons
+    function ic(name){ return ''; }
+  %>
+
+  <!-- NAV -->
+  <header class="cnav">
+    <div class="wrap cnav-in">
+      <a class="brand" href="/synthos/components">
+        <svg class="mk" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <circle cx="16" cy="16" r="4" fill="#2fe0c8"/>
+          <g stroke="#2fe0c8" stroke-width="1.4" opacity="0.9">
+            <circle cx="16" cy="16" r="10" stroke-dasharray="3 4"/>
+            <circle cx="16" cy="6" r="2" fill="#2fe0c8" stroke="none"/>
+            <circle cx="25" cy="21" r="2" fill="#2fe0c8" stroke="none"/>
+            <circle cx="7" cy="21" r="2" fill="#2fe0c8" stroke="none"/>
+          </g>
+        </svg>
+        SynthOS
+      </a>
+      <nav class="cnav-links">
+        <a href="#trace">Live Trace</a>
+        <a href="#stack">The Stack</a>
+        <a href="#agents">Agents</a>
+        <a href="/synthos">Landing</a>
+      </nav>
+      <a href="/signup" class="btn btn-primary" style="padding:9px 18px;font-size:14px;">Talk to our team</a>
+      <button id="cnav-toggle" aria-label="Menu" aria-expanded="false">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div id="cnav-menu" class="m">
+      <a href="#trace">Live Trace</a><a href="#stack">The Stack</a><a href="#agents">Agents</a><a href="/synthos">Landing</a>
+    </div>
+  </header>
+
+  <!-- HERO: autonomous loop -->
+  <section class="hero">
+    <div class="wrap hero-in">
+      <div class="stage" aria-hidden="true">
+        <svg class="rings" viewBox="0 0 480 480">
+          <ellipse cx="240" cy="240" rx="150" ry="150" fill="none" stroke="rgba(47,224,200,0.14)" stroke-dasharray="2 6"/>
+          <ellipse cx="240" cy="240" rx="196" ry="196" fill="none" stroke="rgba(47,224,200,0.10)" stroke-dasharray="2 8"/>
+        </svg>
+        <div class="core"></div>
+        <div class="orbit">
+          <div class="sat s1"><span class="sat-in"><i></i>Plan</span></div>
+          <div class="sat s2"><span class="sat-in"><i></i>Retrieve</span></div>
+          <div class="sat s3"><span class="sat-in"><i></i>Act</span></div>
+          <div class="sat s4"><span class="sat-in"><i></i>Verify</span></div>
+          <div class="sat s5"><span class="sat-in"><i></i>Reflect</span></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="hero-eye">
+          <span class="tag">Agent · <b>01</b></span>
+          <span class="tag">Thinking · <b>autonomous loop</b></span>
+        </div>
+        <h1 class="hero-h"><span class="n">02</span>Autonomous<br><span class="teal">AI</span> Agents</h1>
+        <p class="hero-p">Purpose-built agents that plan, retrieve, reason, and act — measurable outcomes, not chat transcripts.</p>
+        <div class="hero-actions">
+          <a href="#trace" class="btn btn-primary">Start today</a>
+          <a href="#trace" class="watch">
+            <span class="pl"><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><path d="M3 2l7 4-7 4z"/></svg></span>
+            Watch our trailer
+          </a>
+        </div>
+        <div class="hero-tabs">
+          <a href="#trace">Live Trace <span class="c">0A</span></a>
+          <a href="#stack">Platform <span class="c">0B</span></a>
+          <a href="#stack">Stack <span class="c">0C</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIVE TRACE -->
+  <section class="sec" id="trace">
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <span class="kicker">Live Trace</span>
+        <h2>See an agent think.</h2>
+        <p>Not a chatbot. A reasoning loop — plan, retrieve, invoke, synthesize, ship — observable end to end.</p>
+      </div>
+      <div class="trace" data-reveal>
+        <div class="term">
+          <div class="term-bar"><i class="a"></i><i class="b"></i><i class="c"></i><span>agent · trace.livestream</span></div>
+          <div id="trace-term-body"></div>
+        </div>
+        <div class="stepper">
+          <div class="st-h">Reasoning steps</div>
+          <div class="trace-step"><span class="dot">1</span><span class="tx"><b>Intake</b><span>request received</span></span><span class="badge">running</span></div>
+          <div class="trace-step"><span class="dot">2</span><span class="tx"><b>Plan</b><span>decompose</span></span></div>
+          <div class="trace-step"><span class="dot">3</span><span class="tx"><b>Research</b><span>retrieve sources</span></span></div>
+          <div class="trace-step"><span class="dot">4</span><span class="tx"><b>Tools</b><span>invoke systems</span></span></div>
+          <div class="trace-step"><span class="dot">5</span><span class="tx"><b>Reason</b><span>synthesize</span></span></div>
+          <div class="trace-step"><span class="dot">6</span><span class="tx"><b>Compose</b><span>draft output</span></span></div>
+          <div class="trace-step"><span class="dot">7</span><span class="tx"><b>Deliver</b><span>ship result</span></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE STACK -->
+  <section class="sec" id="stack">
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <span class="kicker">The Stack</span>
+        <h2>Three layers. Built to converge.</h2>
+      </div>
+      <div class="stack">
+
+        <!-- 01 AI Agents -->
+        <div class="scard" data-reveal>
+          <div>
+            <div class="num">01</div>
+            <div class="cap">AI Agents</div>
+            <h3>Autonomous agents that execute.</h3>
+            <p>Specialized agents that go beyond automation — they analyze, decide, and deliver real outcomes across documents, workspaces, talent, and logistics.</p>
+          </div>
+          <div class="diagram">
+            <div class="swarm">
+              <div class="sc"></div>
+              <div class="ring">
+                <b style="margin-left:0;margin-top:-50%"></b>
+                <b style="margin-left:40%;margin-top:-30%"></b>
+                <b style="margin-left:48%;margin-top:16%"></b>
+                <b style="margin-left:28%;margin-top:44%"></b>
+                <b style="margin-left:-10%;margin-top:50%"></b>
+                <b style="margin-left:-40%;margin-top:30%"></b>
+                <b style="margin-left:-48%;margin-top:-16%"></b>
+                <b style="margin-left:-28%;margin-top:-44%"></b>
+                <b style="margin-left:16%;margin-top:-48%"></b>
+                <b style="margin-left:-30%;margin-top:8%"></b>
+              </div>
+            </div>
+            <div class="dlbl">swarm · <b>10 agents online</b></div>
+          </div>
+        </div>
+
+        <!-- 02 Agentic AI -->
+        <div class="scard" data-reveal>
+          <div>
+            <div class="num">02</div>
+            <div class="cap">Agentic AI</div>
+            <h3>Intelligence at the executive layer.</h3>
+            <p>An orchestrator coordinates specialized agents to think, research, plan, and communicate — handling end-to-end workflows at the speed of decision-making.</p>
+          </div>
+          <div class="diagram hub">
+            <svg viewBox="0 0 320 220" preserveAspectRatio="xMidYMid meet">
+              <defs><radialGradient id="hp" cx="0.5" cy="0.5" r="0.5"><stop stop-color="#cffff6"/><stop offset="1" stop-color="#2fe0c8"/></radialGradient></defs>
+              <g stroke="rgba(47,224,200,0.35)" stroke-width="1.4" fill="none">
+                <path id="h1" d="M160,110 L64,54"/><path id="h2" d="M160,110 L256,54"/>
+                <path id="h3" d="M160,110 L64,166"/><path id="h4" d="M160,110 L256,166"/>
+              </g>
+              <circle r="3" fill="url(#hp)"><animateMotion dur="2s" repeatCount="indefinite"><mpath href="#h1"/></animateMotion></circle>
+              <circle r="3" fill="url(#hp)"><animateMotion dur="2.2s" repeatCount="indefinite" begin="0.5s"><mpath href="#h2"/></animateMotion></circle>
+              <circle r="3" fill="url(#hp)"><animateMotion dur="2.1s" repeatCount="indefinite" begin="0.9s"><mpath href="#h3"/></animateMotion></circle>
+              <circle r="3" fill="url(#hp)"><animateMotion dur="2.3s" repeatCount="indefinite" begin="1.3s"><mpath href="#h4"/></animateMotion></circle>
+              <!-- worker nodes -->
+              <g font-family="Urbanist" font-size="10" fill="#8795a6" text-anchor="middle">
+                <g><rect x="34" y="42" width="60" height="24" rx="12" fill="#0a1120" stroke="rgba(255,255,255,0.14)"/><text x="64" y="57">agent</text></g>
+                <g><rect x="226" y="42" width="60" height="24" rx="12" fill="#0a1120" stroke="rgba(255,255,255,0.14)"/><text x="256" y="57">agent</text></g>
+                <g><rect x="34" y="154" width="60" height="24" rx="12" fill="#0a1120" stroke="rgba(255,255,255,0.14)"/><text x="64" y="169">agent</text></g>
+                <g><rect x="226" y="154" width="60" height="24" rx="12" fill="#0a1120" stroke="rgba(255,255,255,0.14)"/><text x="256" y="169">agent</text></g>
+              </g>
+              <!-- orchestrator -->
+              <circle cx="160" cy="110" r="30" fill="#06131a" stroke="#2fe0c8" stroke-opacity="0.6"/>
+              <circle cx="160" cy="110" r="30" fill="none" stroke="#2fe0c8" stroke-opacity="0.25"><animate attributeName="r" values="30;40;30" dur="3s" repeatCount="indefinite"/><animate attributeName="stroke-opacity" values="0.4;0;0.4" dur="3s" repeatCount="indefinite"/></circle>
+              <text x="160" y="114" font-family="Epilogue" font-size="11" font-weight="700" fill="#2fe0c8" text-anchor="middle">ORCH</text>
+            </svg>
+            <div class="dlbl">orchestrator · <b>4 workers</b></div>
+          </div>
+        </div>
+
+        <!-- 03 Agentic OS (routing) -->
+        <div class="scard" data-reveal>
+          <div>
+            <div class="num">03</div>
+            <div class="cap">Agentic OS</div>
+            <h3>The Agentic Operating System.</h3>
+            <p>A unified runtime: model gateway, payment functions, observability, and agentic applications — connecting intelligence to the systems that move your business.</p>
+          </div>
+          <div class="routing">
+            <svg class="rc" viewBox="0 0 100 116" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+              <defs><radialGradient id="rp" cx="0.5" cy="0.5" r="0.5"><stop stop-color="#eafffb"/><stop offset="1" stop-color="#2fe0c8"/></radialGradient></defs>
+              <g stroke="rgba(47,224,200,0.4)" stroke-width="0.5" fill="none">
+                <!-- top 4 down to bus, merge to Agentic AI -->
+                <path d="M18,15 V21 H50 V29" /><path d="M40,15 V21" /><path d="M60,15 V21" /><path d="M82,15 V21 H50" />
+              </g>
+              <g stroke="rgba(255,255,255,0.16)" stroke-width="0.5" stroke-dasharray="1.4 1.8" fill="none">
+                <path id="rm1" d="M50,40 V52" />               <!-- Agentic AI -> OS -->
+                <path d="M28,63 H39" /><path d="M61,63 H72" />   <!-- Admin - OS - Payment -->
+                <path id="rm2" d="M50,74 V84" />                <!-- OS -> Large Model -->
+              </g>
+              <g stroke="rgba(47,224,200,0.4)" stroke-width="0.5" fill="none">
+                <path d="M50,95 V100 H16 V104" /><path d="M50,100 H34 V104" /><path d="M50,100 V104"/><path d="M50,100 H66 V104" /><path d="M50,100 H84 V104" />
+              </g>
+              <ellipse cx="50" cy="63" rx="30" ry="12" fill="none" stroke="rgba(47,224,200,0.18)" stroke-dasharray="0.6 2.2"/>
+              <!-- flowing packets -->
+              <circle r="0.9" fill="url(#rp)"><animateMotion dur="1.8s" repeatCount="indefinite"><mpath href="#rm1"/></animateMotion></circle>
+              <circle r="0.9" fill="url(#rp)"><animateMotion dur="1.9s" repeatCount="indefinite" begin="0.9s"><mpath href="#rm2"/></animateMotion></circle>
+            </svg>
+
+            <!-- top row -->
+            <span class="rnode r-green glow" style="left:15%;top:13%"><span class="ric"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9v6h4l6 4V5L8 9H4z" stroke-linejoin="round"/></svg></span>Marketing</span>
+            <span class="rnode r-violet glow" style="left:38.5%;top:13%"><span class="ric"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M5 20c0-3.5 3-5 7-5s7 1.5 7 5" stroke-linecap="round"/></svg></span>C-Suite</span>
+            <span class="rnode r-blue glow" style="left:61.5%;top:13%"><span class="ric"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg></span>Research</span>
+            <span class="rnode r-pink glow" style="left:85%;top:13%"><span class="ric"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 11v9H4v-9h3zm3 0l3-7c1.5 0 2.5 1 2 2.5L17 9h3.5c1 0 1.7 1 1.4 2l-1.7 7c-.2.8-1 1.2-1.7 1H10z" stroke-linejoin="round"/></svg></span>Social</span>
+
+            <!-- agentic ai -->
+            <span class="rnode r-teal glow" style="left:50%;top:34.5%"><span class="ric"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 4H6a2 2 0 00-2 2v3M16 4h2a2 2 0 012 2v3M8 20H6a2 2 0 01-2-2v-3M16 20h2a2 2 0 002-2v-3" stroke-linecap="round"/><circle cx="12" cy="12" r="2.5"/></svg></span>Agentic AI</span>
+
+            <!-- center row -->
+            <span class="rnode r-green" style="left:15%;top:54.5%"><span class="ric"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l7 3v6c0 4.2-3 7-7 8-4-1-7-3.8-7-8V6z" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke-linecap="round"/></svg></span>Admin</span>
+            <span class="rnode r-teal big center" style="left:50%;top:54.5%"><span class="ric"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l8 4.5v9L12 20l-8-4.5v-9z" stroke-linejoin="round"/><circle cx="12" cy="11" r="2.4"/></svg></span><span>Agentic OS<br><span class="rsub" style="font-size:11px">Gateway Router</span></span></span>
+            <span class="rnode r-amber" style="left:85%;top:54.5%"><span class="ric"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18" stroke-linecap="round"/></svg></span>Payment</span>
+
+            <!-- large model -->
+            <span class="rnode r-violet glow" style="left:50%;top:74.5%"><span class="ric"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4" stroke-linecap="round"/></svg></span>Large Model AI</span>
+
+            <!-- bottom row -->
+            <span class="rnode r-green" style="left:16%;top:90%"><span class="ric"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3 3 7 3s7-1.3 7-3v-6"/></svg></span>RAG</span>
+            <span class="rnode r-violet" style="left:34%;top:90%"><span class="ric"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18h6M10 21h4M12 3a6 6 0 013 11c-.6.4-1 1-1 1.7H10c0-.7-.4-1.3-1-1.7A6 6 0 0112 3z" stroke-linejoin="round"/></svg></span>LLM</span>
+            <span class="rnode r-blue" style="left:50%;top:90%"><span class="ric"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8 11l8-4M8 13l8 4" stroke-linecap="round"/></svg></span>LIM</span>
+            <span class="rnode r-teal" style="left:66%;top:90%"><span class="ric"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l8 4.5v9L12 20l-8-4.5v-9z" stroke-linejoin="round"/></svg></span>LVM</span>
+            <span class="rnode r-amber" style="left:84%;top:90%"><span class="ric"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="M8 7l3 9M16 7l-3 9" stroke-linecap="round"/></svg></span>MCP</span>
+
+            <span class="rstatus"><i></i>Routing · Social Media</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- QUOTE -->
+  <section class="sec quote-sec">
+    <div class="wrap">
+      <div class="pullquote" data-quote="SynthOS isn't another model — it's the operating system for an agentic enterprise. The first platform that ships intelligence as infrastructure."></div>
+      <div class="quote-meta"><i></i> Convergence Brief · SynthOS</div>
+    </div>
+  </section>
+
+  <!-- AGENT GRID -->
+  <section class="sec" id="agents">
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <span class="kicker">Product Stack</span>
+        <h2>Eight agents. One runtime.</h2>
+      </div>
+      <div class="agrid" data-reveal>
+        <% const agents = [
+          ["SYN-01","Ledger","Document intelligence","AI Agents","Reads, classifies, and reasons over large document sets into structured answers."],
+          ["SYN-02","Cadence","Workspace orchestration","AI Agents","Keeps meetings, docs, and follow-ups moving so nothing slips between people."],
+          ["SYN-03","Beacon","Talent matching","AI Agents","Maps open requirements to the right candidates in seconds, not weeks."],
+          ["SYN-04","Vector","Logistics & routing","AI Agents","Balances routes and SLAs as conditions shift in real time."],
+          ["SYN-05","Compass","Multi-agent planning","Agentic AI","Breaks a goal into steps and assigns each to a specialist agent."],
+          ["SYN-06","Cortex","Strategic synthesis","Agentic AI","Merges many sources into a single decision-ready brief."],
+          ["SYN-07","Router","Model gateway","Agentic OS","Sends every call to the model that fits the task and the budget."],
+          ["SYN-08","Watchtower","Observability runtime","Agentic OS","Tracks traces, cost, and policy across every running agent."]
+        ]; %>
+        <% agents.forEach(function(a){ %>
+        <div class="acard">
+          <div class="code"><%= a[0] %> <span class="st"></span></div>
+          <h4><%= a[1] %></h4>
+          <div class="role"><%= a[2] %></div>
+          <div class="desc"><%= a[4] %></div>
+          <div class="foot"><span class="tag"><%= a[3] %></span><span class="ver">v1.0 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+        </div>
+        <% }); %>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="sec">
+    <div class="wrap">
+      <div class="cta" data-reveal>
+        <span class="kicker" style="justify-content:center">Ready when you are</span>
+        <h2 style="margin-top:16px">Deploy the agentic stack.</h2>
+        <p>Talk to the team building convergence intelligence for enterprises.</p>
+        <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+          <a href="/signup" class="btn btn-primary">Talk to the team →</a>
+          <a href="/synthos" class="btn btn-ghost">See the landing page</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="cft">
+    <div class="wrap" style="display:flex;justify-content:space-between;width:100%;flex-wrap:wrap;gap:12px">
+      <span>© 2026 SynthOS · Component set</span>
+      <span>Three layers. One intelligence.</span>
+    </div>
+  </footer>
+
+  <script src="/js/synthos-components.js" defer></script>
+</body>
+</html>

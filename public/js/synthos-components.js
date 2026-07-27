@@ -57,6 +57,41 @@
     }
   }
 
+  /* Animated pull-quote: word-by-word fade-up on scroll (degrades to plain text) */
+  var quote = document.querySelector("[data-quote]");
+  if (quote) {
+    var raw = quote.getAttribute("data-quote");
+    if (!reduce) {
+      quote.textContent = "";
+      var words = raw.split(/(\s+)/);
+      var wi = 0;
+      words.forEach(function (w) {
+        if (/^\s+$/.test(w)) {
+          quote.appendChild(document.createTextNode(w));
+          return;
+        }
+        var span = document.createElement("span");
+        span.className = "q-word";
+        span.textContent = w;
+        span.style.transitionDelay = (wi * 55) + "ms";
+        quote.appendChild(span);
+        wi++;
+      });
+      if ("IntersectionObserver" in window) {
+        var qio = new IntersectionObserver(function (es) {
+          es.forEach(function (e) {
+            if (e.isIntersecting) { quote.classList.add("q-in"); qio.unobserve(e.target); }
+          });
+        }, { threshold: 0.35 });
+        qio.observe(quote);
+      } else {
+        quote.classList.add("q-in");
+      }
+    } else {
+      quote.textContent = raw;
+    }
+  }
+
   /* Mobile nav */
   var t = document.getElementById("cnav-toggle");
   var m = document.getElementById("cnav-menu");

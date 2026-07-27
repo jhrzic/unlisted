@@ -29,4 +29,8 @@ router.get("/synthos", (req, res) => {
   res.render("synthos");
 });
 
+router.get("/synthos/components", (req, res) => {
+  res.render("synthos-components");
+});
+
 module.exports = router;
