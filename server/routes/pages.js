@@ -35,10 +35,10 @@ router.get("/synthos/components", (req, res) => {
 
 const synthosPages = {
   roadmap: {
-    kicker: "The path to full convergence",
+    kicker: "The path to Unified Intelligence",
     title: "Roadmap",
     tagline:
-      "The path to full convergence — where SynthOS is headed, shipping intelligence as infrastructure one layer at a time.",
+      "Three layers converging into one — the Execution Layer, the Agent Mesh, and the Intelligence Fabric.",
   },
   advisory: {
     kicker: "Advisory",
